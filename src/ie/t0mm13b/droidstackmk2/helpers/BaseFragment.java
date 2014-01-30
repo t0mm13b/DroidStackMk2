@@ -3,6 +3,7 @@
  */
 package ie.t0mm13b.droidstackmk2.helpers;
 
+import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -17,7 +18,8 @@ import android.view.MenuItem;
 public class BaseFragment extends Fragment {
 
 	private ActionBarActivity mActionBarActivity;
-
+	private IFragmentNotify mFragmentNotify;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,9 +45,18 @@ public class BaseFragment extends Fragment {
 			// make sure transactions are finished before reading backstack
 			// count
 			getFragmentManager().executePendingTransactions();
-
+			if (mFragmentNotify != null){
+				mFragmentNotify.cbFragmentFinished();
+			}
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void registerFragmentNotify(IFragmentNotify fragNotify){
+		mFragmentNotify = fragNotify;
+	}
+	public void unregisterFragmentNotify(){
+		mFragmentNotify = null;
 	}
 }

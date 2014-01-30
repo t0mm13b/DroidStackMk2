@@ -1,6 +1,7 @@
 package ie.t0mm13b.droidstackmk2;
 
 import ie.t0mm13b.droidstackmk2.interfaces.IDrawerListItem;
+import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import ie.t0mm13b.droidstackmk2.ui.CareersFragment;
 import ie.t0mm13b.droidstackmk2.ui.DrawerFragment;
 import ie.t0mm13b.droidstackmk2.ui.SFFragment;
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 import retrofit.client.Client;
 import retrofit.client.Request;
@@ -40,7 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
-public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListItem{
+public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListItem, IFragmentNotify{
 	private static final String TAG = "Droidstackmk2Main";
 	//
 	private static final String SECLIENTIDP_KEY = "client_id";
@@ -65,6 +68,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private boolean mRefreshing = false;
 	//
+	private Stack<String> mStackActionTitles = new Stack<String>();
+	//
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,6 +83,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.content_frame, frag);
 		transaction.commit();
+		mStackActionTitles.push(getString(R.string.default_view_title));
 		
 /*		RetrofitClient.getInstance().Initialize(new FakeStackExchange());
 //		RestAdapter ra = new RestAdapter.Builder()
@@ -277,8 +283,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		int backStackCount = mFragmentManager.getBackStackEntryCount();
 		boolean showDrawerToggle = (backStackCount == 0);
 		mDrawerToggle.setDrawerIndicatorEnabled(showDrawerToggle);
-		if (showDrawerToggle)
-			mActionBar.setTitle(getString(R.string.default_view_title));
+		if (showDrawerToggle) mActionBar.setTitle(getString(R.string.default_view_title));
 	}
 
 
@@ -299,15 +304,19 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		switch (position) {
 		case 0:
 			frag = new SOFragment();
+			((SOFragment)frag).registerFragmentNotify(this);
 			break;
 		case 1:
 			frag = new CareersFragment();
+			((CareersFragment)frag).registerFragmentNotify(this);
 			break;
 		case 2:
 			frag = new SFFragment();
+			((SFFragment)frag).registerFragmentNotify(this);
 			break;
 		case 3:
 			frag = new SUFragment();
+			((SUFragment)frag).registerFragmentNotify(this);
 			break;
 		default:
 			break;
@@ -327,7 +336,17 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			// Highlight the selected item, update the title, and close the drawer
 			mActionBar.setTitle(actionBarText);
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
+			mStackActionTitles.push(actionBarText);
+			dumpStack();
 		}
+	}
+	
+	private void dumpStack(){
+		Log.d(TAG, "dumpStack *** ENTER ***");
+		for (String s : mStackActionTitles){
+			Log.d(TAG, "dumpStack: s = " + s);
+		}
+		Log.d(TAG, "dumpStack *** LEAVE ***");
 	}
 
 	/**
@@ -384,6 +403,22 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 
 		}
 		
+	}
+
+	@Override
+	public void cbFragmentFinished() {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "cbFragmentFinished");
+		dumpStack();
+		try{
+			mStackActionTitles.pop();
+			if (!mStackActionTitles.isEmpty()){
+				mActionBar.setTitle(mStackActionTitles.peek());
+			}
+		}catch(EmptyStackException eseEx){
+			mActionBar.setTitle(getString(R.string.default_view_title));
+		}
+
 	}
 
 }
