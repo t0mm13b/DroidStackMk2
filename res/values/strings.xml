@@ -6,9 +6,13 @@
 	<!-- Action bar menu items -->
 	<string name="action_menu_settings">Settings</string>
 	<string name="action_menu_refresh">Refresh</string>
+	<string name="action_menu_search">Search</string>
 	<!-- -->
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
+	<!--  -->
+	<string name="app_label">Search</string>
+	<string name="search_hint">Search StackExchange Sites</string>
 	<!-- Drawer related -->
 	<string-array name="droidstack_drawer_titles_array">
 		<item>StackOverflow</item>

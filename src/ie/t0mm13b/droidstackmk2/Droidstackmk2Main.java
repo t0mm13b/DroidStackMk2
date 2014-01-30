@@ -17,6 +17,8 @@ import retrofit.client.Client;
 import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -31,6 +33,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +58,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private Menu mOptionsMenu;
 	private MenuItem mOptionsRefresh;
+	private MenuItem mOptionsSearch;
 	//
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
@@ -137,6 +141,11 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		mOptionsMenu = menu;
 		getMenuInflater().inflate(R.menu.droidstackmk2_main, menu);
 		mOptionsRefresh = menu.findItem(R.id.menu_refresh);
+		mOptionsSearch = menu.findItem(R.id.menu_search);
+		SearchView searchViewAction = (SearchView)MenuItemCompat.getActionView(mOptionsSearch);
+		SearchManager sManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+		searchViewAction.setSearchableInfo(sManager.getSearchableInfo(getComponentName()));
+        searchViewAction.setIconifiedByDefault(true);		
 		return true;
 	}
 	
@@ -172,6 +181,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 				mRefreshing = true;
 				setActionRefreshState(true);
 			}
+			return true;
+		case R.id.menu_search:
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

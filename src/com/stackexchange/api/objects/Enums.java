@@ -317,6 +317,7 @@ public class Enums {
 		Reputation("reputation"), // Users
 		Modified("modified"), // Users
 		Added("added"), // Users
+		Relevance("relevance"), // Search
 		Unknown("Unknown");
 		private String mFriendlyName;
 		private SortType(String name){this.mFriendlyName = name; }

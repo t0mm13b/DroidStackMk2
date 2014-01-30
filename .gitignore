@@ -1,6 +1,6 @@
 # built application files
-*.apk
-*.ap_
+bin/*.*
+gen/*.*
 
 # files for the dex VM
 *.dex
@@ -38,3 +38,6 @@ library/ant.properties
 
 library/target
 library/build
+
+project.properties
+local.properties
