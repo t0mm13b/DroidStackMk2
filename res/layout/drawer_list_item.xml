@@ -1,0 +1,8 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/tvDrawer" android:layout_width="match_parent"
+	android:layout_height="wrap_content" android:layout_centerVertical="true"
+	android:gravity="center_vertical" android:padding="8dp"
+	android:text="@string/drawer_sample_txt"
+	android:textColor="#fff" android:drawableLeft="@null"  android:drawablePadding="5dp"
+	android:layout_margin="15dp"
+	android:textAppearance="?android:attr/textAppearanceMedium"/>

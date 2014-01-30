@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="app_name">DroidStackMk2</string>
+	<string name="default_view_title">All Activity</string>
+	<!-- Action bar menu items -->
+	<string name="action_menu_settings">Settings</string>
+	<string name="action_menu_refresh">Refresh</string>
+	<!-- -->
+	<string name="drawer_open">Open navigation drawer</string>
+	<string name="drawer_close">Close navigation drawer</string>
+	<!-- Drawer related -->
+	<string-array name="droidstack_drawer_titles_array">
+		<item>StackOverflow</item>
+		<item>Career</item>
+		<item>ServerFault</item>
+		<item>SuperUser</item>
+	</string-array>
+	<!-- Entries below are actual names of icons used that will appear in front 
+		of each entry in above! if out of sync, illegalstateexception will be thrown 
+		- dowtcha boi! :P -->
+	<string-array name="droidstack_drawer_icons_array">
+		<item>ic_drawer_so</item>
+		<item>ic_drawer_careers</item>
+		<item>ic_drawer_sf</item>
+		<item>ic_drawer_su</item>
+	</string-array>
+	<string name="drawer_sample_txt">Drawer Sample Text</string>
+</resources>
