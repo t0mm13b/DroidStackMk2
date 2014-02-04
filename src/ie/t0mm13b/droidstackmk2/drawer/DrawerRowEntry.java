@@ -1,23 +1,37 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
+import com.stackexchange.api.objects.Site;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 import ie.t0mm13b.droidstackmk2.DroidStackMk2App;
 import ie.t0mm13b.droidstackmk2.Droidstackmk2Main;
-import ie.t0mm13b.droidstackmk2.ui.DrawerFragment;
 
-public class DrawerRowEntry {
+public class DrawerRowEntry implements Parcelable{
 	/**
 	 * 
 	 */
+	private static final String TAG = "DrawerRowEntry";
 	private String mDrawerText;
 	private String mDrawerNameOfIcon;
 	private int mDrawerIconId;
+	private String mKey;
+	private Site mSiteInfo;
 
-	public DrawerRowEntry(String drawerText, String drawerNameOfIcon){
+	public DrawerRowEntry(Parcel in){
+		readFromParcel(in);
+	}
+	public DrawerRowEntry(String drawerText, String drawerNameOfIcon, String keyExtra){
 		mDrawerText = drawerText;
 		mDrawerNameOfIcon = drawerNameOfIcon;
-		mDrawerIconId = DroidStackMk2App.getAppContext().getResources().getIdentifier(
-				drawerNameOfIcon, "drawable",
-				DroidStackMk2App.getAppContext().getPackageName());
+		mKey = keyExtra;
+		if (!mDrawerNameOfIcon.startsWith("http://")){
+			mDrawerIconId = DroidStackMk2App.getAppContext().getResources().getIdentifier(
+					drawerNameOfIcon, "drawable",
+					DroidStackMk2App.getAppContext().getPackageName());
+		}else{
+			mDrawerIconId = -1;
+		}
 	}
 
 	public String getDrawerText() {
@@ -28,6 +42,19 @@ public class DrawerRowEntry {
 		return mDrawerIconId;
 	}
 
+	public String getDrawerIcon(){
+		return mDrawerNameOfIcon;
+	}
+	
+	public String getExtraKey(){
+		return mKey;
+	}
+	public void setSiteInfo(Site siteInfo){
+		mSiteInfo = siteInfo;
+	}
+	public Site getSiteInfo(){
+		return mSiteInfo;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -96,4 +123,38 @@ public class DrawerRowEntry {
 				+ ", mDrawerNameOfIcon=" + mDrawerNameOfIcon
 				+ ", mDrawerIconId=" + mDrawerIconId + "]";
 	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel argDestParcel, int argFlags) {
+		// TODO Auto-generated method stub
+		argDestParcel.writeString(mDrawerText);
+		argDestParcel.writeString(mDrawerNameOfIcon);
+		argDestParcel.writeString(mKey);
+		argDestParcel.writeInt(mDrawerIconId);
+		argDestParcel.writeParcelable(mSiteInfo, argFlags);
+	}
+	private void readFromParcel(Parcel in){
+		mDrawerText = in.readString();
+		mDrawerNameOfIcon = in.readString();
+		mKey = in.readString();
+		mDrawerIconId = in.readInt();
+		mSiteInfo = in.readParcelable(Site.class.getClassLoader());
+	}
+	
+	public static final Parcelable.Creator<DrawerRowEntry> CREATOR = new Parcelable.Creator<DrawerRowEntry>(){
+		@Override
+		public DrawerRowEntry createFromParcel(Parcel source) {
+			return new DrawerRowEntry(source);
+		}
+		@Override
+		public DrawerRowEntry[] newArray(int size){
+			return new DrawerRowEntry[size];
+		}
+	};
 }

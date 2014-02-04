@@ -1,29 +1,37 @@
 package ie.t0mm13b.droidstackmk2;
 
-import ie.t0mm13b.droidstackmk2.interfaces.IDrawerListItem;
+import ie.t0mm13b.droidstackmk2.drawer.DrawerFragment;
+import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
+import ie.t0mm13b.droidstackmk2.drawer.IDrawerListItem;
+import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
+import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
-import ie.t0mm13b.droidstackmk2.ui.CareersFragment;
-import ie.t0mm13b.droidstackmk2.ui.DrawerFragment;
-import ie.t0mm13b.droidstackmk2.ui.SFFragment;
-import ie.t0mm13b.droidstackmk2.ui.SOFragment;
-import ie.t0mm13b.droidstackmk2.ui.SUFragment;
-
+import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.Stack;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import com.stackexchange.api.objects.CommonSEWrapper;
+import com.stackexchange.api.objects.Enums.SiteState;
+import com.stackexchange.api.objects.Enums.SiteType;
+import com.stackexchange.api.objects.Site;
+import com.stackexchange.api.restapi.ISites;
+
+import retrofit.RestAdapter.LogLevel;
+import retrofit.RetrofitError;
 import retrofit.client.Client;
 import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import android.app.SearchManager;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,16 +49,28 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.FrameLayout;
 
-public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListItem, IFragmentNotify{
+/***
+ * Main Fragment Activity class that handles the Navigation Bar and keeping track of fragments.
+ * <ul>
+ * <li>Implements {@link IDrawerListItem} for Navigation Bar handling</li>
+ * <li>Implements {@link IFragmentNotify} for adjusting the ActionBar when fragments are finished</li>
+ * </ul>
+ * 
+ * @author t0mm13b
+ * @see IDrawerListItem
+ * @see IFragmentNotify
+ */
+public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListItem, IFragmentNotify/*, OnQueryTextListener*/{
 	private static final String TAG = "Droidstackmk2Main";
-	//
+	//http://stackapps.com/apps/oauth/view/2563
 	private static final String SECLIENTIDP_KEY = "client_id";
-	private static final String SECLIENTIDP_VALUE = "2492";
+	private static final String SECLIENTIDP_VALUE = "2563";
 	//
 	private static final String SESECRETP_KEY = "client_secret";
-	private static final String SESECRETP_VALUE = "ofXllBxWXNMuvcEaDI3RIg((";
+	private static final String SESECRETP_VALUE = "jtLcZ6ruFMN2Woif6PKwUw((";
 	//
 	private ActionBar mActionBar;
 	private FragmentManager mFragmentManager;
@@ -70,77 +90,40 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private Stack<String> mStackActionTitles = new Stack<String>();
 	//
+	private DrawerFragment mFragmentDrawer;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.supportRequestWindowFeature(Window.FEATURE_PROGRESS);
+		//
 		setContentView(R.layout.activity_droidstackmk2_main);
+		
 		this.mDrawerFrameLayout = (FrameLayout)this.findViewById(R.id.drawer);
 		//
 		this.initActionBar();
 		this.initDrawer();
+		//
+		mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
+		if (mFragmentDrawer != null){
+			Log.d(TAG, "Found our fragment!");
+			if (!mFragmentDrawer.isListenerRegistered()){
+				mFragmentDrawer.registerListener(this);
+			}
+		}
 		//
 		Fragment frag = new DroidStackMk2Fragment();
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.content_frame, frag);
 		transaction.commit();
 		mStackActionTitles.push(getString(R.string.default_view_title));
-		
-/*		RetrofitClient.getInstance().Initialize(new FakeStackExchange());
-//		RestAdapter ra = new RestAdapter.Builder()
-//		.setServer(SEURL)
-//		.setClient(new FakeStackExchange())
-//		.setLogLevel(LogLevel.FULL)
-//		.build();
-		
-		ISites sites = RetrofitClient.getInstance().getRESTfulClient().create(ISites.class);
-		sites.getAllSites("", "", "", new Callback<CommonSEWrapper<Site>> (){
-
-			@Override
-			public void failure(RetrofitError argRetrofitError) {
-				// TODO Auto-generated method stub
-				if (argRetrofitError.isNetworkError()){
-					Log.d(TAG, "sites.getAllSites.failure() - Network error!");
-				}else{
-					Log.d(TAG, "sites.getAllSites.failure() - " + argRetrofitError);
-				}
-			}
-
-			@Override
-			public void success(CommonSEWrapper<Site> argCSEWrapper, Response argResponse) {
-				// TODO Auto-generated method stub
-		        Log.d(TAG, "sites.getAllSites.success() - cseWrapper = " + argCSEWrapper.toString());
-			}
-		});*/
+		//
+		RetrofitClient.getInstance().Initialize(null);
+		RetrofitClient.getInstance().SetLogging(LogLevel.BASIC);
+		//
+		new AsyncFetchSites().execute();
 	}
 
-	@SuppressWarnings("unused")
-	private String cvtRespToJson(InputStream in){
-		// TODO Auto-generated method stub
-		InputStream inStream = in; 
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
-		StringBuilder sb = new StringBuilder();
-		String line = null;
-		boolean isClosedOk = false;
-		boolean hasIOEx = false;
-        try {
-            while ((line = br.readLine()) != null) {
-                sb.append((line + "\n"));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            hasIOEx = true;
-        } finally {
-            try {
-            	inStream.close();
-            	isClosedOk = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (hasIOEx) return null;
-        if (isClosedOk) return sb.toString();
-        return "";
-	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -151,7 +134,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		SearchView searchViewAction = (SearchView)MenuItemCompat.getActionView(mOptionsSearch);
 		SearchManager sManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
 		searchViewAction.setSearchableInfo(sManager.getSearchableInfo(getComponentName()));
-        searchViewAction.setIconifiedByDefault(true);		
+        searchViewAction.setIconifiedByDefault(true);
+        //searchViewAction.setOnQueryTextListener(this);
 		return true;
 	}
 	
@@ -189,6 +173,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			}
 			return true;
 		case R.id.menu_search:
+			//mOptionsMenu.setGroupVisible(0, false);
+			mOptionsSearch.expandActionView();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -199,11 +185,14 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		if (mOptionsMenu != null) {
 			if (mOptionsRefresh != null) {
 				if (refreshing) {
-					MenuItemCompat.setActionView(mOptionsRefresh,
-							R.layout.actionbar_indeterminate_progress);
+					this.setProgressBarVisibility(true);
+					
+					//MenuItemCompat.setActionView(mOptionsRefresh,
+					//		R.layout.actionbar_indeterminate_progress);
 					new TestTask().execute("test");
 				} else {
-					MenuItemCompat.setActionView(mOptionsRefresh, null);
+					//MenuItemCompat.setActionView(mOptionsRefresh, null);
+					this.setProgressBarVisibility(false);
 				}
 			}
 		}
@@ -263,13 +252,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 					}
 
 				});
-		DrawerFragment fragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
-		if (fragmentDrawer != null){
-			Log.d(TAG, "Found our fragment!");
-			if (!fragmentDrawer.isListenerRegistered()){
-				fragmentDrawer.registerListener(this);
-			}
-		}
+		
 
 	}
 
@@ -287,68 +270,73 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	}
 
 
+	/***
+	 * Catch the interface callback via implementing {@link IDrawerListItem} so that we can launch the respective fragment based on
+	 * what was on the Navigation Panel's listview item that was tapped.
+	 */
 	@Override
-	public void cbDrawerListItemClick(int position, long id, String actionBarText) {
+	public void cbDrawerListItemClick(int position, DrawerRowEntry dre) {
 		// TODO Auto-generated method stub
-		Log.d(TAG, "cbDrawerListItemClick");
-		selectItem(position, actionBarText);
+		Utils.LogIt(TAG, String.format("cbDrawerListItemClick(...) - position = %d; actionBarText = %s", position, dre.getDrawerText()));
+		//selectItem(position, actionBarText);
+		selectItem(position, dre);
 	}
+
 	/**
 	 * Swap out the fragment depending on which item in teh drawer was tapped
 	 * on.
 	 * 
 	 * @param position
 	 */
-	private void selectItem(int position, String actionBarText) {
+	private void selectItem(int position, DrawerRowEntry dre) {
 		Fragment frag = null;
-		switch (position) {
-		case 0:
-			frag = new SOFragment();
-			((SOFragment)frag).registerFragmentNotify(this);
-			break;
-		case 1:
-			frag = new CareersFragment();
-			((CareersFragment)frag).registerFragmentNotify(this);
-			break;
-		case 2:
-			frag = new SFFragment();
-			((SFFragment)frag).registerFragmentNotify(this);
-			break;
-		case 3:
-			frag = new SUFragment();
-			((SUFragment)frag).registerFragmentNotify(this);
-			break;
-		default:
-			break;
-		}
+		//
+		frag = SEFragmentGeneric.newInstance(position, dre);
 		if (frag != null) {
-			// Bundle args = new Bundle();
-			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-			// frag.setArguments(args);
+			((SEFragmentGeneric)frag).registerFragmentNotify(this);
 
 			// Insert the fragment by replacing any existing fragment
-			FragmentTransaction transaction = mFragmentManager
-					.beginTransaction();
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
 			transaction.replace(R.id.content_frame, frag);
 			// add the transaction to the back stack so the user can navigate back
 			transaction.addToBackStack(frag.getClass().getSimpleName());
 			transaction.commit();
 			// Highlight the selected item, update the title, and close the drawer
-			mActionBar.setTitle(actionBarText);
+			mActionBar.setTitle(dre.getDrawerText());
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
-			mStackActionTitles.push(actionBarText);
+			mStackActionTitles.push(dre.getDrawerText());
 			dumpStack();
 		}
 	}
 	
 	private void dumpStack(){
-		Log.d(TAG, "dumpStack *** ENTER ***");
+		Utils.LogIt(TAG, "dumpStack *** ENTER ***");
 		for (String s : mStackActionTitles){
 			Log.d(TAG, "dumpStack: s = " + s);
 		}
-		Log.d(TAG, "dumpStack *** LEAVE ***");
+		Utils.LogIt(TAG, "dumpStack *** LEAVE ***");
 	}
 
+	/***
+	 * This gets called from the fragment (we registered the listener in selectItem above!) and adjust the 
+	 * action bar title accordingly based on the fragment.
+	 */
+	@Override
+	public void cbFragmentFinished() {
+		// TODO Auto-generated method stub
+		Utils.LogIt(TAG, "cbFragmentFinished");
+		dumpStack();
+		try{
+			mStackActionTitles.pop();
+			if (!mStackActionTitles.isEmpty()){
+				mActionBar.setTitle(mStackActionTitles.peek());
+			}
+		}catch(EmptyStackException eseEx){
+			mActionBar.setTitle(getString(R.string.default_view_title));
+		}
+
+	}
+	
 	/**
 	 * Test to show the refresh spinner on action bar.
 	 * 
@@ -361,7 +349,12 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		protected String doInBackground(String... params) {
 			// Simulate something long running
 			try {
-				Thread.sleep(2000);
+				for (int i = 0; i < 100; i++){
+					int progress = ((Window.PROGRESS_END - Window.PROGRESS_START) / 100) * i;
+					setSupportProgress(progress);
+					Thread.sleep(50);
+				}
+				//Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -404,21 +397,92 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}
 		
 	}
-
+/*
 	@Override
-	public void cbFragmentFinished() {
+	public boolean onQueryTextChange(String arg0) {
 		// TODO Auto-generated method stub
-		Log.d(TAG, "cbFragmentFinished");
-		dumpStack();
-		try{
-			mStackActionTitles.pop();
-			if (!mStackActionTitles.isEmpty()){
-				mActionBar.setTitle(mStackActionTitles.peek());
-			}
-		}catch(EmptyStackException eseEx){
-			mActionBar.setTitle(getString(R.string.default_view_title));
-		}
-
+		return false;
 	}
 
+	@Override
+	public boolean onQueryTextSubmit(String arg0) {
+		mOptionsMenu.setGroupVisible(0, true);
+		mOptionsSearch.collapseActionView();
+		// TODO Auto-generated method stub
+		return false;
+	}*/
+	
+	/***
+	 * Retrieve the known list of sites across the Stack Exchange Network, only those that are normal and non-beta (<b>i.e. main</b>).
+	 * Build up the arraylist and pass that into the {@link DrawerArrayAdapter} and that's the Navigation Drawer sorted.
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
+	class AsyncFetchSites extends AsyncTask <String, Integer, String>{
+		private static final String TAG = "AsyncFetchSites";
+		@Override
+		protected void onPreExecute(){
+			setProgressBarVisibility(true);
+			mFragmentDrawer.getDrawerAdapter().clearAll();//.clearDrawerList();
+		}
+		@Override
+		protected String doInBackground(String... arg0) {
+			boolean hasLoadedSites = false;
+			ISites sites = RetrofitClient.getInstance().getRESTfulClient().create(ISites.class);
+			CommonSEWrapper<Site> siteWrapper;
+			int nPageCount = 1;
+			ArrayList<Site> siteList = new ArrayList<Site>();
+			boolean hasRetrofitError = false;
+			try{
+				do{
+					siteWrapper = sites.getAllSitesSync(null, 
+							String.valueOf(nPageCount), 
+							String.valueOf(RetrofitClient.SE_MAX_PAGESIZE));
+					if (siteWrapper != null){
+						Utils.LogIt(TAG, String.format("doInBackground(...) - Page: %d; Has More: %s", nPageCount, String.valueOf(siteWrapper.hasMore)));
+						if (siteWrapper != null && siteWrapper.itemsList != null && siteWrapper.itemsList.size() > 0){
+							for (Site siteInfo : siteWrapper.itemsList){
+								if (siteInfo.siteType == SiteType.MainSite && siteInfo.siteState == SiteState.Normal){
+									siteList.add(siteInfo);
+								}
+							}
+						}
+						if (siteWrapper.hasMore) nPageCount++;
+						else hasLoadedSites = true;
+					}else break;
+				}while(!hasLoadedSites);
+			}catch(RetrofitError rfEx){
+				hasRetrofitError = true;
+			}
+			int nMaxSiteCount = siteList.size();
+			Utils.LogIt(TAG, String.format("doInBackground(...) - siteList Count = %d", nMaxSiteCount));
+			if (nMaxSiteCount > 0){
+				for (int nSiteIndex = 0; nSiteIndex < nMaxSiteCount; nSiteIndex++){
+					Site siteInfo = siteList.get(nSiteIndex);
+					Utils.LogIt(TAG, String.format("doInBackground(...) - [%d] - siteInfo = %s", nSiteIndex, siteInfo.name));
+					final DrawerRowEntry dre = new DrawerRowEntry(
+							StringEscapeUtils.unescapeHtml4(siteInfo.name), 
+							((hasRetrofitError) ? "ic_error" : siteInfo.iconUrl), 
+							siteInfo.apiSiteParameter);
+					dre.setSiteInfo(siteInfo);
+					mFragmentDrawer.getDrawerAdapter().add(dre);
+					publishProgress(nSiteIndex);
+				}
+			}
+			return null;
+		}
+		@Override
+		protected void onProgressUpdate(Integer... progress){
+			int nProgress = progress[0];
+			Utils.LogIt(TAG, "onProgressUpdate(...) - nProgress = " + nProgress);
+			int progressTrack = ((Window.PROGRESS_END - Window.PROGRESS_START) / 100) * nProgress;
+			setSupportProgress(progressTrack);
+		}
+		@Override
+		protected void onPostExecute(String result){
+			setProgressBarVisibility(false);
+			mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();
+		}
+	}	
 }

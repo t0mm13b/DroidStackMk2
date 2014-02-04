@@ -1,8 +1,24 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/tvDrawer" android:layout_width="match_parent"
-	android:layout_height="wrap_content" android:layout_centerVertical="true"
-	android:gravity="center_vertical" android:padding="8dp"
-	android:text="@string/drawer_sample_txt"
-	android:textColor="#fff" android:drawableLeft="@null"  android:drawablePadding="5dp"
-	android:layout_margin="15dp"
-	android:textAppearance="?android:attr/textAppearanceMedium"/>
+<ie.t0mm13b.droidstackmk2.drawer.DrawerView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="wrap_content">
+
+	<ImageView android:id="@+id/ivDrawerEntryIcon"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_centerVertical="true" android:adjustViewBounds="true"
+		android:maxHeight="32dp" android:maxWidth="32dp"
+		android:layout_margin="5dp" android:scaleType="centerCrop"
+		android:src="@drawable/ic_empty" />
+
+	<TextView android:id="@+id/tvDrawerEntryText"
+		android:layout_width="match_parent" android:layout_height="wrap_content"
+		android:layout_centerVertical="true" android:gravity="center_vertical"
+		android:text="@string/drawer_sample_txt" android:textColor="#fff"
+		android:layout_toRightOf="@+id/ivDrawerEntryIcon"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+<!-- 	<CheckBox android:id="@+id/cbDrawerEntrySelectd" -->
+<!-- 		android:layout_centerVertical="true" android:layout_width="wrap_content" -->
+<!-- 		android:layout_height="wrap_content" android:layout_alignParentRight="true" -->
+<!-- 		android:text="" /> -->
+
+</ie.t0mm13b.droidstackmk2.drawer.DrawerView>

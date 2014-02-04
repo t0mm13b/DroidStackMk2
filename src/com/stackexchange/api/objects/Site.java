@@ -1,7 +1,11 @@
 package com.stackexchange.api.objects;
 
 
+import java.util.ArrayList;
 import java.util.List;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.SiteState;
@@ -14,7 +18,7 @@ import com.stackexchange.api.objects.Enums.SiteType;
  *
  * @see http://api.stackexchange.com/docs/types/site
  */
-public class Site{
+public class Site implements Parcelable{
 	@SerializedName("aliases") public List<String> aliases;
 	@SerializedName("api_site_parameter") public String apiSiteParameter = "";
 	@SerializedName("audience") public String audience = "";
@@ -33,6 +37,16 @@ public class Site{
 	@SerializedName("site_url") public String siteUrl = "";
 	@SerializedName("styling") public Styling styling;
 	@SerializedName("twitter_account") public String twitterAccount = "";
+	
+	private Site(){
+		aliases = new ArrayList<String>();
+		markDownExtensions = new ArrayList<String>();
+		relatedSites = new ArrayList<RelatedSite>();
+	}
+	
+	private Site(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -216,5 +230,60 @@ public class Site{
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeStringList(aliases);
+		dest.writeString(apiSiteParameter);
+		dest.writeString(audience);
+		dest.writeLong(closedBetaDate);
+		dest.writeString(favIconUrl);
+		dest.writeString(highResolutionIconUrl);
+		dest.writeString(iconUrl);
+		dest.writeLong(launchDate);
+		dest.writeString(logoUrl);
+		dest.writeStringList(markDownExtensions);
+		dest.writeString(name);
+		dest.writeLong(openBetaDate);
+		dest.writeTypedList(relatedSites);
+		dest.writeInt(siteState.ordinal());
+		dest.writeInt(siteType.ordinal());
+		dest.writeString(siteUrl);
+		dest.writeParcelable(styling, flags);
+		dest.writeString(twitterAccount);
+	}
+	private void readFromParcel(Parcel in){
+		in.readStringList(aliases);
+		apiSiteParameter = in.readString();
+		audience = in.readString();
+		closedBetaDate = in.readLong();
+		favIconUrl = in.readString();
+		highResolutionIconUrl = in.readString();
+		iconUrl = in.readString();
+		launchDate = in.readLong();
+		logoUrl = in.readString();
+		in.readStringList(markDownExtensions);
+		name = in.readString();
+		openBetaDate = in.readLong();
+		in.readTypedList(relatedSites, RelatedSite.CREATOR);
+		siteState = SiteState.values()[in.readInt()];
+		siteType = SiteType.values()[in.readInt()];
+		siteUrl = in.readString();
+		styling = (Styling)in.readParcelable(Styling.class.getClassLoader());
+		twitterAccount = in.readString();
+	}
+	public static final Parcelable.Creator<Site> CREATOR = new Parcelable.Creator<Site>(){
+		@Override
+		public Site createFromParcel(Parcel source) {
+			return new Site(source);
+		}
+		@Override
+		public Site[] newArray(int size){
+			return new Site[size];
+		}
+	};
 }

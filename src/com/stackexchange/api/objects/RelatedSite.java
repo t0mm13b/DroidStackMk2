@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.Relation;
 
@@ -13,12 +16,15 @@ import com.stackexchange.api.objects.Enums.Relation;
  *
  * @see http://api.stackexchange.com/docs/types/related-site
  */
-public class RelatedSite {
+public class RelatedSite implements Parcelable {
 	@SerializedName("api_site_parameter") public String apiSiteParameter = "";
 	@SerializedName("name") public String name = "";
 	@SerializedName("relation") public Relation relation = Relation.Unknown;
 	@SerializedName("site_url") public String siteUrl = "";
 
+	private RelatedSite(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -85,5 +91,33 @@ public class RelatedSite {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		dest.writeString(apiSiteParameter);
+		dest.writeString(name);
+		dest.writeString(siteUrl);
+		dest.writeInt(relation.ordinal());
+	}
+	private void readFromParcel(Parcel src){
+		apiSiteParameter = src.readString();
+		name = src.readString();
+		siteUrl = src.readString();
+		relation = Relation.values()[src.readInt()];
+	}
+	public static final Parcelable.Creator<RelatedSite> CREATOR = new Parcelable.Creator<RelatedSite>(){
+		@Override
+		public RelatedSite createFromParcel(Parcel source) {
+			return new RelatedSite(source);
+		}
+		@Override
+		public RelatedSite[] newArray(int size){
+			return new RelatedSite[size];
+		}
+	};
 }

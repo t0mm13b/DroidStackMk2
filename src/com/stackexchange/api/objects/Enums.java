@@ -1,5 +1,7 @@
 package com.stackexchange.api.objects;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Enums {
 	/***
 	 * 
@@ -98,14 +100,11 @@ public class Enums {
 	 *
 	 */
 	public static enum SiteState{
-		Normal("normal"),
-		ClosedBeta("closed_beta"),
-		OpenBeta("open_beta"),
-		LinkedMeta("linked_meta"),
-		Unknown("unknown");
-		private String mFriendlyName;
-		private SiteState(String name){this.mFriendlyName = name; }
-		public String toString(){ return this.mFriendlyName; }
+		@SerializedName("normal") Normal,
+		@SerializedName("closed_beta") ClosedBeta,
+		@SerializedName("open_beta") OpenBeta,
+		@SerializedName("linked_meta") LinkedMeta,
+		Unknown
 	}
 	
 	/***
@@ -114,12 +113,9 @@ public class Enums {
 	 *
 	 */
 	public static enum SiteType{
-		MainSite("main_site"),
-		MetaSite("meta_site"),
-		Unknown("unknown");
-		private String mFriendlyName;
-		private SiteType(String name){this.mFriendlyName = name; }
-		public String toString(){ return this.mFriendlyName; }
+		@SerializedName("main_site") MainSite,
+		@SerializedName("meta_site") MetaSite,
+		Unknown
 	}
 	
 	/***

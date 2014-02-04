@@ -30,4 +30,5 @@
 		<item>ic_drawer_su</item>
 	</string-array>
 	<string name="drawer_sample_txt">Drawer Sample Text</string>
+	<string name="emptyDrawerList">No Site(s) found.</string>
 </resources>

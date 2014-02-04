@@ -16,11 +16,13 @@ public class RetrofitClient {
 	private static final String SEURL = "http://api.stackexchange.com/2.1";
 	//
 	private static final String SEKEYP_NAME = "key";
-	private static final String SEKEYP_VALUE = "Fnhf4w7rCV3smh0814Hj6Q((";
+	private static final String SEKEYP_VALUE = "eTSVGWl)FNM7y9hfqnyC6A((";
 	//
 	
 	private static RestAdapter mRestAdapterClient;
 	private static boolean isRestClientReady;
+	
+	public static final int SE_MAX_PAGESIZE = 50;
 	
 	/***
 	 * Private inner class that is a loader for the Retrofit clent
@@ -54,8 +56,7 @@ public class RetrofitClient {
 				.setServer(SEURL)
 				.build();
 			}
-		}else{
-			throw new IllegalStateException("RestAdapter Client already initialized");
+			isRestClientReady = true;
 		}
 	}
 	public void SetLogging(LogLevel retrofitLogLevel){
@@ -73,7 +74,6 @@ public class RetrofitClient {
 
 		@Override
 		public void intercept(RequestFacade argReqFacade) {
-			// TODO Auto-generated method stub
 			argReqFacade.addQueryParam(SEKEYP_NAME, SEKEYP_VALUE); // Add in the API key to get around quota limitations
 		}
 		

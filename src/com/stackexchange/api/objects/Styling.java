@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /***
@@ -13,11 +16,14 @@ import com.google.gson.annotations.SerializedName;
  *
  * @see http://api.stackexchange.com/docs/types/styling
  */
-public class Styling {
+public class Styling implements Parcelable{
 	@SerializedName("link_color") public String linkColor = "";
 	@SerializedName("tag_background_color") public String tagBackgroundColor = "";
 	@SerializedName("tag_foreground_color") public String tagForegroundColor = "";
 
+	private Styling(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -81,5 +87,30 @@ public class Styling {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(linkColor);
+		dest.writeString(tagBackgroundColor);
+		dest.writeString(tagForegroundColor);
+	}
+	private void readFromParcel(Parcel src){
+		linkColor = src.readString();
+		tagBackgroundColor = src.readString();
+		tagForegroundColor = src.readString();
+	}
+	public static final Parcelable.Creator<Styling> CREATOR = new Parcelable.Creator<Styling>(){
+		@Override
+		public Styling createFromParcel(Parcel source) {
+			return new Styling(source);
+		}
+		@Override
+		public Styling[] newArray(int size){
+			return new Styling[size];
+		}
+	};
 }

@@ -5,17 +5,20 @@
     <item android:id="@+id/menu_search"
         android:icon="@drawable/ic_action_search"
         android:title="@string/action_menu_search"
-        droidstackmk2:showAsAction="ifRoom" 
-        droidstackmk2:actionViewClass="android.support.v7.widget.SearchView"/>
+        android:orderInCategory="100"
+        droidstackmk2:showAsAction="ifRoom|collapseActionView" 
+        droidstackmk2:actionViewClass="android.support.v7.widget.SearchView" />
     
     <item android:id="@+id/menu_refresh"
          android:icon="@drawable/ic_action_refresh"
          android:title="@string/action_menu_refresh"
-         droidstackmk2:showAsAction="ifRoom" />
+         android:orderInCategory="101"
+         droidstackmk2:showAsAction="ifRoom"/>
     
     <item
         android:id="@+id/menu_settings"
         android:title="@string/action_menu_settings"
+        android:orderInCategory="102"
         droidstackmk2:showAsAction="never"/>
 
 </menu>

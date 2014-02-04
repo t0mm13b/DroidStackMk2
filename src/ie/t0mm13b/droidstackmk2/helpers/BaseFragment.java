@@ -42,9 +42,11 @@ public class BaseFragment extends Fragment {
 		// Respond to the action bar's Up/Home button
 		case android.R.id.home:
 			getFragmentManager().popBackStack();
-			// make sure transactions are finished before reading backstack
-			// count
+			// make sure transactions are finished before reading backstack count
 			getFragmentManager().executePendingTransactions();
+			/***
+			 * Call the {@link IFragmentNotify#cbFragmentFinished} which gets caught by the class implementer.
+			 */
 			if (mFragmentNotify != null){
 				mFragmentNotify.cbFragmentFinished();
 			}
@@ -53,6 +55,11 @@ public class BaseFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	/***
+	 * Register the class implementer of the interface {@link IFragmentNotify}
+	 * 
+	 * @param fragNotify
+	 */
 	public void registerFragmentNotify(IFragmentNotify fragNotify){
 		mFragmentNotify = fragNotify;
 	}

@@ -4,74 +4,91 @@ import ie.t0mm13b.droidstackmk2.Droidstackmk2Main;
 import ie.t0mm13b.droidstackmk2.R;
 
 import java.util.ArrayList;
-
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 public class DrawerArrayAdapter extends BaseAdapter {
 	private static String TAG = "DrawerArrayAdapter";
 	private ArrayList<DrawerRowEntry> mDrawerArrayList;
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
-
-	public DrawerArrayAdapter(Context context,
-			ArrayList<DrawerRowEntry> listRowDrawerEntries) {
+	private IDrawerEntry mDrawerEntryCallback;
+	
+	public DrawerArrayAdapter(Context context){
 		super();
-		this.mContext = context;
-		this.mDrawerArrayList = listRowDrawerEntries;
-		this.mLayoutInflater = (LayoutInflater) mContext
-				.getSystemService(Droidstackmk2Main.LAYOUT_INFLATER_SERVICE);
+		mContext = context;
+		mDrawerArrayList = new ArrayList<DrawerRowEntry>();
+		mLayoutInflater = (LayoutInflater) mContext.getSystemService(Droidstackmk2Main.LAYOUT_INFLATER_SERVICE);
+	}
+	public DrawerArrayAdapter(Context context, ArrayList<DrawerRowEntry> listRowDrawerEntries) {
+		this(context);
+		mDrawerArrayList = listRowDrawerEntries;
 	}
 
+	public void setDrawerEntryCallback(IDrawerEntry iDrawerEntryCallback){
+		mDrawerEntryCallback = iDrawerEntryCallback;
+	}
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
-		return this.mDrawerArrayList.size();
-	}
-
-	@Override
-	public Object getItem(int position) {
-		// TODO Auto-generated method stub
-		return this.mDrawerArrayList.get(position);
-	}
-
-	@Override
-	public long getItemId(int position) {
-		// TODO Auto-generated method stub
+		if (mDrawerArrayList != null && mDrawerArrayList.size() > 0) return mDrawerArrayList.size();
 		return 0;
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
-		DrawerViewHolder dvh = null;
-		if (convertView == null) {
-			dvh = new DrawerViewHolder();
-			convertView = this.mLayoutInflater.inflate(
-					R.layout.drawer_list_item, null);
-			dvh.drawerTextEntry = (TextView) convertView
-					.findViewById(R.id.tvDrawer);
-			convertView.setTag(dvh);
-		} else {
-			dvh = (DrawerViewHolder) convertView.getTag();
-		}
-		DrawerRowEntry dre = this.mDrawerArrayList.get(position);
-		try {
-			dvh.drawerTextEntry.setCompoundDrawablesWithIntrinsicBounds(
-					dre.getDrawerId(), 0, 0, 0);
-		} catch (NullPointerException npe) {
-			Log.d(TAG, "getView b0rk3d :( " + npe);
-		}
-		dvh.drawerTextEntry.setText(dre.getDrawerText());
-		return convertView;
+	public DrawerRowEntry getItem(int position) {
+		if (mDrawerArrayList != null && mDrawerArrayList.size() > 0) return mDrawerArrayList.get(position);
+		return null;
 	}
 
-	public static class DrawerViewHolder {
-		TextView drawerTextEntry;
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	public void clearAll(){
+		mDrawerArrayList.clear();
+	}
+
+	@Override
+	public boolean hasStableIds(){
+		return true;
+	}
+	
+	public ArrayList<DrawerRowEntry> getList(){
+		return mDrawerArrayList;
+	}
+	
+	public void add(DrawerRowEntry dre){
+		if (mDrawerArrayList != null){
+			if (!mDrawerArrayList.contains(dre)){
+				mDrawerArrayList.add(dre);
+			}
+		}
+	}
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		DrawerView dv;
+		if (convertView == null){
+			dv = (DrawerView)mLayoutInflater.inflate(R.layout.drawer_list_item, null);
+		}else{
+			dv = (DrawerView)convertView;
+		}
+		DrawerRowEntry dre = mDrawerArrayList.get(position);
+		dv.showDrawerEntry(dre);
+		dv.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				if (mDrawerEntryCallback != null){
+					mDrawerEntryCallback.cbDrawerEntryClicked(position);
+				}
+			}
+			
+		});
+		return dv;
 	}
 }

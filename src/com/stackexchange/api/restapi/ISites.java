@@ -31,4 +31,10 @@ public interface ISites {
 			@Query("page") String pageNumber, 
 			@Query("pagesize") String pageSize, 
 			Callback<CommonSEWrapper<Site>> cbAllSites);
+	
+	@GET("/sites")
+	public CommonSEWrapper<Site> getAllSitesSync(
+			@Query("filter") String filterName, 
+			@Query("page") String pageNumber, 
+			@Query("pagesize") String pageSize);
 }
