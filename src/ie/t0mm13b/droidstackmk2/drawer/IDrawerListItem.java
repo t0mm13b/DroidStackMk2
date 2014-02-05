@@ -17,4 +17,14 @@ public interface IDrawerListItem {
 	 * @see DrawerRowEntry
 	 */
 	public void cbDrawerListItemClick(int position, DrawerRowEntry dre);
+	
+	/***
+	 * The callback when the item in the list is long-pressed prompting to locate the appropriate
+	 * user id of the account on the selected site.
+	 * 
+	 * @param position - index into the {@link DrawerArrayAdapter}'s list
+	 * @param dre - the actual {@link DrawerRowEntry} object for obtaining the {@link DrawerRowEntry#getSiteInfo()} in order to get
+	 * the {@link com.stackexchange.api.objects.Site#apiSiteParameter} for interrogation via REST api call.
+	 */
+	public void cbObtainUserId(int position, DrawerRowEntry dre);
 }

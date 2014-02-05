@@ -46,6 +46,10 @@ public class DrawerFragment extends Fragment{
 			@Override
 			public boolean onItemLongClick(AdapterView<?> argAdapter, View argView,	int argPosition, long argId) {
 				Utils.LogIt(TAG, String.format("mDrawerList::onItemLongClick(...) - position = %d", argPosition));
+				// Prompt for user account info then, find associated accounts and re-trim the list in the drawer...
+				if (mDrawerListItemListener != null){
+					mDrawerListItemListener.cbObtainUserId(argPosition, mDrawerAdapter.getItem(argPosition));
+				}
 				return true;
 			}
 			

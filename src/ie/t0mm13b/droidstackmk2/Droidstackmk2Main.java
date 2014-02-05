@@ -2,6 +2,8 @@ package ie.t0mm13b.droidstackmk2;
 
 import ie.t0mm13b.droidstackmk2.drawer.DrawerFragment;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
+import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment;
+import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment.IDrawerUserPickerDialog;
 import ie.t0mm13b.droidstackmk2.drawer.IDrawerListItem;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
@@ -259,7 +261,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	 * view or within a fragment.
 	 */
 	protected void adjustActionBarToggle() {
-		// TODO Auto-generated method stub
 		int backStackCount = mFragmentManager.getBackStackEntryCount();
 		boolean showDrawerToggle = (backStackCount == 0);
 		mDrawerToggle.setDrawerIndicatorEnabled(showDrawerToggle);
@@ -273,12 +274,36 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	 */
 	@Override
 	public void cbDrawerListItemClick(int position, DrawerRowEntry dre) {
-		// TODO Auto-generated method stub
 		Utils.LogIt(TAG, String.format("cbDrawerListItemClick(...) - position = %d; actionBarText = %s", position, dre.getDrawerText()));
 		//selectItem(position, actionBarText);
 		selectItem(position, dre);
 	}
 
+	/***
+	 * Catch the interface callback so that we can launch the dialog fragment to prompt user to insert their appropriately selected
+	 * StackExchange site in order to obtain their flair etc and to pull in associated accounts if necessary.
+	 */
+	@Override
+	public void cbObtainUserId(int position, final DrawerRowEntry dre) {
+		Utils.LogIt(TAG, String.format("cbObtainUserId: dre = " + dre.toString()));
+		selectItem(position, dre);
+		// Check against the shared prefs for that site info?
+		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre);
+		dlg.setIDrawerUserPickerDialog(new IDrawerUserPickerDialog(){
+
+			@Override
+			public void cbSelectedSEAccount(String seUserId) {
+				// TODO Auto-generated method stub
+				// Now we have the account number....
+				Utils.LogIt(TAG, String.format("dlg::cbSelectedSEAccount(...) - seUserId = %s", seUserId));
+				// Ok, now the user id is picked and returned back, we need to pull that in!
+				
+			}
+			
+		});
+		dlg.show(getSupportFragmentManager(), "userPickrDialog");
+	}	
+	
 	/**
 	 * Swap out the fragment depending on which item in teh drawer was tapped
 	 * on.
@@ -481,5 +506,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			setProgressBarVisibility(false);
 			mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();
 		}
-	}	
+	}
+
+
 }
