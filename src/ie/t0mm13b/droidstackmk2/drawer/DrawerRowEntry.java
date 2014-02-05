@@ -7,6 +7,14 @@ import android.os.Parcelable;
 import ie.t0mm13b.droidstackmk2.DroidStackMk2App;
 import ie.t0mm13b.droidstackmk2.Droidstackmk2Main;
 
+/***
+ * The entry of the item in the navigation drawer.
+ * <br/>
+ * Implements the {@link Parcelable} interface for ease of passing this around in bundles.
+ * 
+ * @author t0mm13b
+ *
+ */
 public class DrawerRowEntry implements Parcelable{
 	/**
 	 * 

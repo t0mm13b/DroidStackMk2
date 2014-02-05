@@ -7,16 +7,20 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+/***
+ * The adapter for the list in the drawer aka Navigation Drawer.
+ * 
+ * @author t0mm13b
+ *
+ */
 public class DrawerArrayAdapter extends BaseAdapter {
 	private static String TAG = "DrawerArrayAdapter";
 	private ArrayList<DrawerRowEntry> mDrawerArrayList;
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
-	private IDrawerEntry mDrawerEntryCallback;
 	
 	public DrawerArrayAdapter(Context context){
 		super();
@@ -29,9 +33,6 @@ public class DrawerArrayAdapter extends BaseAdapter {
 		mDrawerArrayList = listRowDrawerEntries;
 	}
 
-	public void setDrawerEntryCallback(IDrawerEntry iDrawerEntryCallback){
-		mDrawerEntryCallback = iDrawerEntryCallback;
-	}
 	@Override
 	public int getCount() {
 		if (mDrawerArrayList != null && mDrawerArrayList.size() > 0) return mDrawerArrayList.size();
@@ -69,6 +70,10 @@ public class DrawerArrayAdapter extends BaseAdapter {
 			}
 		}
 	}
+	/***
+	 * Note how much cleaner this {@link BaseAdapter#getView(int, View, ViewGroup)} is, using custom view and viewholder pattern 
+	 * hidden away inside the custom view.
+	 */
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		DrawerView dv;
@@ -79,16 +84,6 @@ public class DrawerArrayAdapter extends BaseAdapter {
 		}
 		DrawerRowEntry dre = mDrawerArrayList.get(position);
 		dv.showDrawerEntry(dre);
-		dv.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				if (mDrawerEntryCallback != null){
-					mDrawerEntryCallback.cbDrawerEntryClicked(position);
-				}
-			}
-			
-		});
 		return dv;
 	}
 }

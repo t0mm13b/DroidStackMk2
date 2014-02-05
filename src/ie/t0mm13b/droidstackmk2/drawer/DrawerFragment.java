@@ -1,23 +1,26 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
 import ie.t0mm13b.droidstackmk2.R;
+import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 /***
  * The fragment embedded in the Navigation Drawer. 
  * <br/>
- * Implements the {@link IDrawerEntry} callback.
  * 
  * @author t0mm13b
  *
  */
-public class DrawerFragment extends Fragment implements IDrawerEntry{
+public class DrawerFragment extends Fragment{
 	private static final String TAG = "DrawerFragment";
 	private ListView mDrawerList;
 	private TextView mDrawerListEmpty;
@@ -36,8 +39,27 @@ public class DrawerFragment extends Fragment implements IDrawerEntry{
         mDrawerList = (ListView) rootView.findViewById(R.id.lvDrawerItems);
         mDrawerListEmpty = (TextView) rootView.findViewById(R.id.emptyDrawerList);
 		mDrawerAdapter = new DrawerArrayAdapter(this.getActivity().getApplicationContext());
-		mDrawerAdapter.setDrawerEntryCallback(this);
 		mDrawerList.setEmptyView(mDrawerListEmpty);
+		//
+		mDrawerList.setOnItemLongClickListener(new OnItemLongClickListener(){
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> argAdapter, View argView,	int argPosition, long argId) {
+				Utils.LogIt(TAG, String.format("mDrawerList::onItemLongClick(...) - position = %d", argPosition));
+				return true;
+			}
+			
+		});
+		mDrawerList.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> argViewAdapter, View argView, int argPosition, long argId) {
+				if (mDrawerListItemListener != null){
+					mDrawerListItemListener.cbDrawerListItemClick(argPosition, mDrawerAdapter.getItem(argPosition));
+				}
+			}
+			
+		});
 		// Set the adapter for the list view
 		mDrawerList.setAdapter(this.mDrawerAdapter);
         return rootView;
@@ -61,28 +83,4 @@ public class DrawerFragment extends Fragment implements IDrawerEntry{
 	public boolean isListenerRegistered(){
 		return isRegistered;
 	}
-//	
-//	public void clearDrawerList(){
-//		mDrawerAdapter.clearAll();
-//		mDrawerAdapter.notifyDataSetChanged();
-//	}
-//	
-//	public void addDrawerEntry(DrawerRowEntry dre){
-//		mDrawerAdapter.add(dre);
-//	}
-//	public void notifyDrawer(){
-//		mDrawerAdapter.notifyDataSetChanged();
-//	}
-
-	/***
-	 * The callback from the {@link DrawerArrayAdapter} where the tap on the row was made.
-	 * We fire the external interface's callback and pass it back out to whoever implements {@link IDrawerListItem}
-	 */
-	@Override
-	public void cbDrawerEntryClicked(int position) {
-		if (mDrawerListItemListener != null){
-			mDrawerListItemListener.cbDrawerListItemClick(position, mDrawerAdapter.getItem(position));
-		}
-	}
-
 }
