@@ -98,6 +98,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	private boolean mRefreshing = false;
 	//
 	private Stack<String> mStackActionTitles = new Stack<String>();
+	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
 	//
 	private DrawerFragment mFragmentDrawer;
 	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
@@ -422,15 +423,16 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			// Highlight the selected item, update the title, and close the drawer
 			mActionBar.setTitle(dre.getDrawerText());
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
-			mStackActionTitles.push(dre.getDrawerText());
+			mStackDRE.push(dre);
 			dumpStack();
 		}
 	}
 	
 	private void dumpStack(){
 		Utils.LogIt(TAG, "dumpStack *** ENTER ***");
-		for (String s : mStackActionTitles){
-			Log.d(TAG, "dumpStack: s = " + s);
+		//for (String s : mStackActionTitles){
+		for (DrawerRowEntry dre : mStackDRE){
+			Log.d(TAG, "dumpStack: dre = " + dre);
 		}
 		Utils.LogIt(TAG, "dumpStack *** LEAVE ***");
 	}
@@ -445,9 +447,14 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		Utils.LogIt(TAG, "cbFragmentFinished");
 		dumpStack();
 		try{
-			mStackActionTitles.pop();
-			if (!mStackActionTitles.isEmpty()){
-				mActionBar.setTitle(mStackActionTitles.peek());
+//			mStackActionTitles.pop();
+			mStackDRE.pop();
+//			if (!mStackActionTitles.isEmpty()){
+			if (!mStackDRE.isEmpty()){
+//				mActionBar.setTitle(mStackActionTitles.peek());
+				DrawerRowEntry dre = mStackDRE.peek();
+				mActionBar.setTitle(dre.getDrawerText());
+				mUserInfo.setNetworkUserInfo(dre.getNetworkUserInfo());
 			}
 		}catch(EmptyStackException eseEx){
 			mActionBar.setTitle(getString(R.string.default_view_title));
