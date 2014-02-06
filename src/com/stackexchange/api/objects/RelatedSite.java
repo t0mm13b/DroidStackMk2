@@ -1,5 +1,6 @@
 package com.stackexchange.api.objects;
 
+import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -17,7 +18,8 @@ import com.stackexchange.api.objects.Enums.Relation;
  * @see http://api.stackexchange.com/docs/types/related-site
  */
 public class RelatedSite implements Parcelable {
-	@SerializedName("api_site_parameter") public String apiSiteParameter = "";
+	private static final String TAG = "RelatedSite";
+	@SerializedName("api_site_parameter") public String apiSiteParameter = ""; // may be absent!
 	@SerializedName("name") public String name = "";
 	@SerializedName("relation") public Relation relation = Relation.Unknown;
 	@SerializedName("site_url") public String siteUrl = "";
@@ -93,12 +95,12 @@ public class RelatedSite implements Parcelable {
 	}
 	@Override
 	public int describeContents() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
+		Utils.LogIt(TAG, "writeToParcel: " + this.toString());
+		//dest.writeString((apiSiteParameter == null) ? "" : apiSiteParameter);
 		dest.writeString(apiSiteParameter);
 		dest.writeString(name);
 		dest.writeString(siteUrl);

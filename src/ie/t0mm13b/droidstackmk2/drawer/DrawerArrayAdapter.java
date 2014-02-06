@@ -54,6 +54,14 @@ public class DrawerArrayAdapter extends BaseAdapter {
 		mDrawerArrayList.clear();
 	}
 
+	public boolean remove(DrawerRowEntry dre){
+		if (mDrawerArrayList != null){
+			if (mDrawerArrayList.contains(dre)){
+				return mDrawerArrayList.remove(dre);
+			}
+		}
+		return false;
+	}
 	@Override
 	public boolean hasStableIds(){
 		return true;

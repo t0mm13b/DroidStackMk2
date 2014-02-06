@@ -1,7 +1,5 @@
 package com.stackexchange.api.objects;
 
-import java.util.Arrays;
-
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.UserType;
 

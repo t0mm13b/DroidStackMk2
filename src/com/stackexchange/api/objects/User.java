@@ -17,10 +17,10 @@ import com.stackexchange.api.objects.Enums.UserType;
  * @see http://api.stackexchange.com/docs/types/user
  */
 public class User {
-	@SerializedName("about_me") public String aboutMe = "";
-	@SerializedName("accept_rate") public int acceptRate = -1;
+	@SerializedName("about_me") public String aboutMe = ""; // may be absent
+	@SerializedName("accept_rate") public int acceptRate = -1; // may be absent
 	@SerializedName("account_id") public int accountId = -1;
-	@SerializedName("age") public int age = -1;
+	@SerializedName("age") public int age = -1; // may be absent
 	@SerializedName("answer_count") public int answerCount = -1;
 	@SerializedName("badge_counts") public BadgeCounts badges;
 	@SerializedName("creation_date") public long creationDate = -1;
@@ -28,9 +28,9 @@ public class User {
 	@SerializedName("down_vote_count") public int downvoteCount = -1;
 	@SerializedName("is_employee") public boolean isEmployee = false;
 	@SerializedName("last_access_date") public long lastAccessDate = -1;
-	@SerializedName("last_modified_date") public long lastModifiedDate = -1;
+	@SerializedName("last_modified_date") public long lastModifiedDate = -1;// may be absent
 	@SerializedName("link") public String link = "";
-	@SerializedName("location") public String location = "";
+	@SerializedName("location") public String location = "";// may be absent
 	@SerializedName("profile_image") public String profileImage = "";
 	@SerializedName("question_count") public int questionCount = -1;
 	@SerializedName("reputation") public int reputation = -1;
@@ -39,12 +39,12 @@ public class User {
 	@SerializedName("reputation_change_quarter") public int repChangeQuarter = -1;
 	@SerializedName("reputation_change_week") public int repChangeWeek = -1;
 	@SerializedName("reputation_change_year") public int repChangeYear = -1;
-	@SerializedName("timed_penalty_date") public long timedPenaltyDate = -1;
+	@SerializedName("timed_penalty_date") public long timedPenaltyDate = -1;// may be absent
 	@SerializedName("up_vote_count") public int upvoteCount = -1;
 	@SerializedName("user_id") public int userId = -1;
 	@SerializedName("user_type") public UserType userType = UserType.Unknown;
 	@SerializedName("view_count") public int viewCount = -1;
-	@SerializedName("website_url") public String websiteUrl = "";
+	@SerializedName("website_url") public String websiteUrl = "";// may be absent
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

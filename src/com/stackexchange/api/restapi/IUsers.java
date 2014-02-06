@@ -978,10 +978,10 @@ public interface IUsers {
 	 */
 	@GET("/users/{ids}/associated")
 	public void getAssociatedAccountsByAccountId(
-			@Path("ids") String listIds,
+			@Path("ids") String listAccIds,
 			@Query("page") String pageNumber, 
 			@Query("pagesize") String pageSize,
-			Callback<NetworkUser> cbAssociatedAccountsByAccountId);
+			Callback<CommonSEWrapper<NetworkUser>> cbAssociatedAccountsByAccountId);
 	
 	/***
 	 * Returns a record of merges that have occurred involving the passed account ids.

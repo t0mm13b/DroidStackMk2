@@ -1,6 +1,8 @@
 package com.stackexchange.api.objects;
 
 
+import ie.t0mm13b.droidstackmk2.helpers.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,24 +21,25 @@ import com.stackexchange.api.objects.Enums.SiteType;
  * @see http://api.stackexchange.com/docs/types/site
  */
 public class Site implements Parcelable{
-	@SerializedName("aliases") public List<String> aliases;
+	private static final String TAG = "Site";
+	@SerializedName("aliases") public List<String> aliases; // may be absent
 	@SerializedName("api_site_parameter") public String apiSiteParameter = "";
 	@SerializedName("audience") public String audience = "";
-	@SerializedName("closed_beta_date") public long closedBetaDate = -1;
+	@SerializedName("closed_beta_date") public long closedBetaDate = -1; // may be absent
 	@SerializedName("fav_icon_url") public String favIconUrl = "";
-	@SerializedName("high_resolution_icon_url") public String highResolutionIconUrl = "";
+	@SerializedName("high_resolution_icon_url") public String highResolutionIconUrl = ""; // may be absent
 	@SerializedName("icon_url") public String iconUrl = "";
 	@SerializedName("launch_date") public long launchDate = -1;
 	@SerializedName("logo_url") public String logoUrl = "";
-	@SerializedName("markdown_extensions") public List<String> markDownExtensions;
+	@SerializedName("markdown_extensions") public List<String> markDownExtensions; // may be absent
 	@SerializedName("name") public String name = "";
-	@SerializedName("open_beta_date") public long openBetaDate = -1;
-	@SerializedName("related_sites") public List<RelatedSite> relatedSites;
+	@SerializedName("open_beta_date") public long openBetaDate = -1; // may be absent
+	@SerializedName("related_sites") public List<RelatedSite> relatedSites; // may be absent
 	@SerializedName("site_state") public SiteState siteState = SiteState.Unknown;
 	@SerializedName("site_type") public SiteType siteType = SiteType.Unknown;
 	@SerializedName("site_url") public String siteUrl = "";
 	@SerializedName("styling") public Styling styling;
-	@SerializedName("twitter_account") public String twitterAccount = "";
+	@SerializedName("twitter_account") public String twitterAccount = ""; // may be absent
 	
 	private Site(){
 		aliases = new ArrayList<String>();
@@ -237,23 +240,28 @@ public class Site implements Parcelable{
 	}
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeStringList(aliases);
+		Utils.LogIt(TAG, "writeToParcel: " + this.toString());
+		List<String> tmpStringList = new ArrayList<String>();
+		List<RelatedSite> tmpRelSitesList = new ArrayList<RelatedSite>();
+		dest.writeStringList((aliases == null) ? tmpStringList : aliases);
 		dest.writeString(apiSiteParameter);
 		dest.writeString(audience);
 		dest.writeLong(closedBetaDate);
 		dest.writeString(favIconUrl);
+//		dest.writeString((highResolutionIconUrl == null) ? "" : highResolutionIconUrl);
 		dest.writeString(highResolutionIconUrl);
 		dest.writeString(iconUrl);
 		dest.writeLong(launchDate);
 		dest.writeString(logoUrl);
-		dest.writeStringList(markDownExtensions);
+		dest.writeStringList((markDownExtensions == null) ? tmpStringList : markDownExtensions);
 		dest.writeString(name);
 		dest.writeLong(openBetaDate);
-		dest.writeTypedList(relatedSites);
+		dest.writeTypedList((relatedSites == null) ? tmpRelSitesList : relatedSites);
 		dest.writeInt(siteState.ordinal());
 		dest.writeInt(siteType.ordinal());
 		dest.writeString(siteUrl);
 		dest.writeParcelable(styling, flags);
+//		dest.writeString((twitterAccount == null) ? "" : twitterAccount);
 		dest.writeString(twitterAccount);
 	}
 	private void readFromParcel(Parcel in){

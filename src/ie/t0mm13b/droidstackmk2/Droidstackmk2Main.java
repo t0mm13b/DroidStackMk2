@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EmptyStackException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Stack;
 
@@ -23,6 +25,7 @@ import com.stackexchange.api.objects.Enums.SiteState;
 import com.stackexchange.api.objects.Enums.SiteType;
 import com.stackexchange.api.objects.Enums.SortOrder;
 import com.stackexchange.api.objects.Enums.SortType;
+import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.Site;
 import com.stackexchange.api.objects.User;
 import com.stackexchange.api.restapi.ISites;
@@ -98,6 +101,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private DrawerFragment mFragmentDrawer;
 	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
+	//
+	private Map<String, Site> mSiteMap = new HashMap<String, Site>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -308,7 +313,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 				MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
 
 				// Ok, now the user id is picked and returned back, we need to pull that in!
-				IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
+				final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
 				users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
 						"", 
 						"", 
@@ -323,7 +328,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 							@Override
 							public void failure(RetrofitError arg0) {
 								MenuItemCompat.setActionView(mOptionsRefresh, null);
-								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, failure!", Toast.LENGTH_SHORT);
+								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
 							}
 
 							@Override
@@ -333,6 +338,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 									User selectdUser = argCSEWrapper.itemsList.get(0);
 									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
 									mUserInfo.setUserInfo(selectdUser);
+									getAssociatedSites(users, mUserInfo.getUserInfo());
 								}
 								MenuItemCompat.setActionView(mOptionsRefresh, null);	
 							}
@@ -344,6 +350,49 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		dlg.show(getSupportFragmentManager(), "userPickrDialog");
 	}	
 	
+	private void getAssociatedSites(final IUsers userAPI, final User userInfo){
+		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
+		userAPI.getAssociatedAccountsByAccountId(
+				String.valueOf(userInfo.accountId), 
+				"", 
+				"",
+				new Callback<CommonSEWrapper<NetworkUser>>(){
+
+					@Override
+					public void failure(RetrofitError argRetrofitError) {
+						// TODO Auto-generated method stub
+						MenuItemCompat.setActionView(mOptionsRefresh, null);
+						Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getAssociatedAccountsByAccountId(...) failure!", Toast.LENGTH_SHORT);
+					}
+
+					@Override
+					public void success(CommonSEWrapper<NetworkUser> argCSEWrapper, Response argResponse) {
+						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() > 0){
+							mFragmentDrawer.getDrawerAdapter().clearAll();
+							for (NetworkUser nw : argCSEWrapper.itemsList){
+								if (nw.siteUrl != null){
+									Site assocSite = mSiteMap.get(nw.siteUrl);
+									if (assocSite != null){
+										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite = " + assocSite.toString());
+										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) nw = " + nw.toString());
+										DrawerRowEntry dre = new DrawerRowEntry(
+												StringEscapeUtils.unescapeHtml4(assocSite.name), 
+												assocSite.iconUrl, 
+												assocSite.apiSiteParameter);
+										dre.setSiteInfo(assocSite);
+										mFragmentDrawer.getDrawerAdapter().add(dre);
+									}else{
+										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite is null! nw = " + nw.toString());
+									}
+								}
+							}
+							mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();							
+						}
+						MenuItemCompat.setActionView(mOptionsRefresh, null);
+					}
+					
+				});
+	}
 	/**
 	 * Swap out the fragment depending on which item in teh drawer was tapped
 	 * on.
@@ -507,6 +556,9 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 							for (Site siteInfo : siteWrapper.itemsList){
 								if (siteInfo.siteType == SiteType.MainSite && siteInfo.siteState == SiteState.Normal){
 									siteList.add(siteInfo);
+									if (!mSiteMap.containsKey(siteInfo.siteUrl)){
+										mSiteMap.put(siteInfo.siteUrl, siteInfo);
+									}
 								}
 							}
 						}
@@ -527,6 +579,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 							StringEscapeUtils.unescapeHtml4(siteInfo.name), 
 							((hasRetrofitError) ? "ic_error" : siteInfo.iconUrl), 
 							siteInfo.apiSiteParameter);
+					// need to build a map based on url, site for quick lookups via associated accounts.
+					// mSiteMap is cached above!
 					dre.setSiteInfo(siteInfo);
 					mFragmentDrawer.getDrawerAdapter().add(dre);
 					publishProgress(nSiteIndex);
@@ -557,6 +611,21 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			mUserInfo = userInfo;
 			setChanged();
 			notifyObservers(getUserInfo());
+		}
+	}
+	class cbGetUsersById implements Callback<CommonSEWrapper<User>>{
+		private static final String TAG = "UserHandler";
+
+		@Override
+		public void failure(RetrofitError arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void success(CommonSEWrapper<User> arg0, Response arg1) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

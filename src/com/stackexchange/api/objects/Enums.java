@@ -9,16 +9,16 @@ public class Enums {
 	 *
 	 */
 	public static enum PostType{
-		Question("Question"),
-		Answer("Answer"),
-		Unknown("Unknown");
+		@SerializedName("question") Question("question"),
+		@SerializedName("answer") Answer("answer"),
+		Unknown("unknown");
 		private String mFriendlyName;
 		private PostType(String name){this.mFriendlyName = name; }
 		public String toString(){ return this.mFriendlyName; }
 	}
 	
 	/***
-	 * 
+	 * We're not touching this, as that is designated by site admins.
 	 * @author t0mm13b
 	 *
 	 */
@@ -39,8 +39,8 @@ public class Enums {
 	 *
 	 */
 	public static enum BadgeType{
-		Named("named"),
-		TagBased("tag_based"),
+		@SerializedName("named") Named("named"),
+		@SerializedName("tag_based") TagBased("tag_based"),
 		Unknown("Unknown");
 		private String mFriendlyName;
 		private BadgeType(String name){this.mFriendlyName = name; }
@@ -53,9 +53,9 @@ public class Enums {
 	 *
 	 */
 	public static enum BadgeRank{
-		Gold("gold"),
-		Silver("silver"),
-		Bronze("bronze"),
+		@SerializedName("gold") Gold("gold"),
+		@SerializedName("silver") Silver("silver"),
+		@SerializedName("bronze") Bronze("bronze"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private BadgeRank(String name){this.mFriendlyName = name; }
@@ -68,9 +68,9 @@ public class Enums {
 	 *
 	 */
 	public static enum Relation{
-		Parent("parent"),
-		Meta("meta"),
-		Chat("chat"),
+		@SerializedName("parent") Parent("parent"),
+		@SerializedName("meta") Meta("meta"),
+		@SerializedName("chat") Chat("chat"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private Relation(String name){this.mFriendlyName = name; }
@@ -95,7 +95,7 @@ public class Enums {
 	}
 	
 	/***
-	 * 
+	 * We're not touching this, as that is designated by site admins.
 	 * @author t0mm13b
 	 *
 	 */
@@ -108,6 +108,7 @@ public class Enums {
 	}
 	
 	/***
+	 * We're not touching this, as that is designated by site admins.
 	 * 
 	 * @author t0mm13b
 	 *
@@ -124,11 +125,11 @@ public class Enums {
 	 *
 	 */
 	public static enum EventType{
-		QuestionPosted("question_posted"),
-		AnswerPosted("answer_posted"),
-		CommentPosted("comment_posted"),
-		PostEdited("post_edited"),
-		UserCreated("user_created"),
+		@SerializedName("question_posted") QuestionPosted("question_posted"),
+		@SerializedName("answer_posted") AnswerPosted("answer_posted"),
+		@SerializedName("comment_posted") CommentPosted("comment_posted"),
+		@SerializedName("post_edited") PostEdited("post_edited"),
+		@SerializedName("user_created") UserCreated("user_created"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private EventType(String name){this.mFriendlyName = name; }
@@ -141,14 +142,14 @@ public class Enums {
 	 *
 	 */
 	public static enum InboxType{
-		Comment("comment"),
-		ChatMessage("chat_message"),
-		NewAnswer("new_answer"),
-		CareersMessage("careers_message"),
-		CareersInvitation("careers_invitation"),
-		MetaQuestion("meta_question"),
-		PostNotice("post_notice"),
-		ModeratorMessage("moderator_message"),
+		@SerializedName("comment") Comment("comment"),
+		@SerializedName("chat_message") ChatMessage("chat_message"),
+		@SerializedName("new_answer") NewAnswer("new_answer"),
+		@SerializedName("careers_message") CareersMessage("careers_message"),
+		@SerializedName("careers_invitation") CareersInvitation("careers_invitation"),
+		@SerializedName("meta_question") MetaQuestion("meta_question"),
+		@SerializedName("post_notice") PostNotice("post_notice"),
+		@SerializedName("moderator_message") ModeratorMessage("moderator_message"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private InboxType(String name){this.mFriendlyName = name; }
@@ -161,21 +162,21 @@ public class Enums {
 	 *
 	 */
 	public static enum NotificationType{
-		Generic("generic"),
-		ProfileActivity("profile_activity"),
-		BountyExpired("bounty_expired"),
-		BountyExpires1D("bounty_expires_in_one_day"),
-		BadgeEarned("badge_earned"),
-		BountyExpires3D("bounty_expires_in_three_days"),
-		ReputationBonus("reputation_bonus"),
-		AccountsAssociated("accounts_associated"),
-		NewPrivilege("new_privilege"),
-		PostMigrated("post_migrated"),
-		ModeratorMessage("moderator_message"),
-		RegistrationReminder("registration_reminder"),
-		EditSuggested("edit_suggested"),
-		SubstantiveEdit("substantive_edit"),
-		BountyGracePeriodStarted("bounty_grace_period_started"),
+		@SerializedName("generic") Generic("generic"),
+		@SerializedName("profile_activity") ProfileActivity("profile_activity"),
+		@SerializedName("bounty_expired") BountyExpired("bounty_expired"),
+		@SerializedName("bounty_expires_in_one_day") BountyExpires1D("bounty_expires_in_one_day"),
+		@SerializedName("badge_earned") BadgeEarned("badge_earned"),
+		@SerializedName("bounty_expires_in_three_days") BountyExpires3D("bounty_expires_in_three_days"),
+		@SerializedName("reputation_bonus") ReputationBonus("reputation_bonus"),
+		@SerializedName("accounts_associated") AccountsAssociated("accounts_associated"),
+		@SerializedName("new_privilege") NewPrivilege("new_privilege"),
+		@SerializedName("post_migrated") PostMigrated("post_migrated"),
+		@SerializedName("moderator_message") ModeratorMessage("moderator_message"),
+		@SerializedName("registration_reminder") RegistrationReminder("registration_reminder"),
+		@SerializedName("edit_suggested") EditSuggested("edit_suggested"),
+		@SerializedName("substantive_edit") SubstantiveEdit("substantive_edit"),
+		@SerializedName("bounty_grace_period_started") BountyGracePeriodStarted("bounty_grace_period_started"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private NotificationType(String name){this.mFriendlyName = name; }
@@ -188,21 +189,21 @@ public class Enums {
 	 *
 	 */
 	public static enum TimelineType{
-		Question("question"),
-		Answer("answer"),
-		Comment("comment"),
-		UnacceptedAnswer("unaccepted_answer"),
-		AcceptedAnswer("accepted_answer"),
-		VoteAggregate("vote_aggregate"),
-		Revision("revision"),
-		PostStateChanged("post_state_changed"),
-		Commented("commented"),
-		Asked("asked"),
-		Answered("answered"),
-		Badge("badge"),
-		Accepted("accepted"),
-		Reviewed("reviewed"),
-		Suggested("suggested"),
+		@SerializedName("question") Question("question"),
+		@SerializedName("answer") Answer("answer"),
+		@SerializedName("comment") Comment("comment"),
+		@SerializedName("unaccepted_answer") UnacceptedAnswer("unaccepted_answer"),
+		@SerializedName("accepted_answer") AcceptedAnswer("accepted_answer"),
+		@SerializedName("vote_aggregate") VoteAggregate("vote_aggregate"),
+		@SerializedName("revision") Revision("revision"),
+		@SerializedName("post_state_changed") PostStateChanged("post_state_changed"),
+		@SerializedName("commented") Commented("commented"),
+		@SerializedName("asked") Asked("asked"),
+		@SerializedName("answered") Answered("answered"),
+		@SerializedName("badge") Badge("badge"),
+		@SerializedName("accepted") Accepted("accepted"),
+		@SerializedName("reviewed") Reviewed("reviewed"),
+		@SerializedName("suggested") Suggested("suggested"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private TimelineType(String name){this.mFriendlyName = name; }
@@ -215,13 +216,13 @@ public class Enums {
 	 *
 	 */
 	public static enum VoteType{
-		Accepts("accepts"),
-		UpVotes("up_votes"),
-		DownVotes("down_votes"),
-		BountiesOffered("bounties_offered"),
-		BountiesWon("bounties_won"),
-		Spam("spam"),
-		SuggestedEdits("suggested_edits"),
+		@SerializedName("accepts") Accepts("accepts"),
+		@SerializedName("up_votes") UpVotes("up_votes"),
+		@SerializedName("down_votes") DownVotes("down_votes"),
+		@SerializedName("bounties_offered") BountiesOffered("bounties_offered"),
+		@SerializedName("bounties_won") BountiesWon("bounties_won"),
+		@SerializedName("spam") Spam("spam"),
+		@SerializedName("suggested_edits") SuggestedEdits("suggested_edits"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private VoteType(String name){this.mFriendlyName = name; }
@@ -234,29 +235,29 @@ public class Enums {
 	 *
 	 */
 	public static enum ReputationHistoryType{
-		AskerAcceptsAnswer("asker_accepts_answer"),
-		AskerUnacceptAnswer("asker_unaccept_answer"),
-		AnswerAccepted("answer_accepted"),
-		AnswerUnaccepted("answer_unaccepted"),
-		VoterDownVotes("voter_downvotes"),
-		VoterUndownVotes("voter_undownvotes"),
-		PostDownvoted("post_downvoted"),
-		PostUndownVoted("post_undownvoted"),
-		PostUpvoted("post_upvoted"),
-		PostUnupVoted("post_unupvoted"),
-		SuggestedEditApprovalReceived("suggested_edit_approval_received"),
-		PostFlaggedAsSpam("post_flagged_as_spam"),
-		PostFlaggedAsOffensive("post_flagged_as_offensive"),
-		BountyGiven("bounty_given"),
-		BountyEarned("bounty_earned"),
-		BountyCancelled("bounty_cancelled"),
-		PostDeleted("post_deleted"),
-		PostUndeleted("post_undeleted"),
-		AssociationBonus("association_bonus"),
-		ArbitraryReputationChange("arbitrary_reputation_change"),
-		VoteFraudReversal("vote_fraud_reversal"),
-		PostMigrated("post_migrated"),
-		UserDeleted("user_deleted"),
+		@SerializedName("asker_accepts_answer") AskerAcceptsAnswer("asker_accepts_answer"),
+		@SerializedName("asker_unaccept_answer") AskerUnacceptAnswer("asker_unaccept_answer"),
+		@SerializedName("answer_accepted") AnswerAccepted("answer_accepted"),
+		@SerializedName("answer_unaccepted") AnswerUnaccepted("answer_unaccepted"),
+		@SerializedName("voter_downvotes") VoterDownVotes("voter_downvotes"),
+		@SerializedName("voter_undownvotes") VoterUndownVotes("voter_undownvotes"),
+		@SerializedName("post_downvoted") PostDownvoted("post_downvoted"),
+		@SerializedName("post_undownvoted") PostUndownVoted("post_undownvoted"),
+		@SerializedName("post_upvoted") PostUpvoted("post_upvoted"),
+		@SerializedName("post_unupvoted") PostUnupVoted("post_unupvoted"),
+		@SerializedName("suggested_edit_approval_received") SuggestedEditApprovalReceived("suggested_edit_approval_received"),
+		@SerializedName("post_flagged_as_spam") PostFlaggedAsSpam("post_flagged_as_spam"),
+		@SerializedName("post_flagged_as_offensive") PostFlaggedAsOffensive("post_flagged_as_offensive"),
+		@SerializedName("bounty_given") BountyGiven("bounty_given"),
+		@SerializedName("bounty_earned") BountyEarned("bounty_earned"),
+		@SerializedName("bounty_cancelled") BountyCancelled("bounty_cancelled"),
+		@SerializedName("post_deleted") PostDeleted("post_deleted"),
+		@SerializedName("post_undeleted") PostUndeleted("post_undeleted"),
+		@SerializedName("association_bonus") AssociationBonus("association_bonus"),
+		@SerializedName("arbitrary_reputation_change") ArbitraryReputationChange("arbitrary_reputation_change"),
+		@SerializedName("vote_fraud_reversal") VoteFraudReversal("vote_fraud_reversal"),
+		@SerializedName("post_migrated") PostMigrated("post_migrated"),
+		@SerializedName("user_deleted") UserDeleted("user_deleted"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private ReputationHistoryType(String name){this.mFriendlyName = name; }
@@ -269,8 +270,8 @@ public class Enums {
 	 *
 	 */
 	public static enum RevisionType{
-		SingleUser("single_user"),
-		VoteBased("vote_based"),
+		@SerializedName("single_user") SingleUser("single_user"),
+		@SerializedName("vote_based") VoteBased("vote_based"),
 		Unknown("Unknown");
 		private String mFriendlyName;
 		private RevisionType(String name){this.mFriendlyName = name; }
@@ -326,8 +327,8 @@ public class Enums {
 	 *
 	 */
 	public static enum SortOrder{
-		Desc("desc"),
-		Asc("asc"),
+		@SerializedName("desc") Desc("desc"),
+		@SerializedName("asc") Asc("asc"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private SortOrder(String name){this.mFriendlyName = name; }
@@ -340,8 +341,8 @@ public class Enums {
 	 *
 	 */
 	public static enum Period{
-		AllTime("all_time"),
-		Month("month"),
+		@SerializedName("all_time") AllTime("all_time"),
+		@SerializedName("month") Month("month"),
 		Unknown("unknown");
 		private String mFriendlyName;
 		private Period(String name){this.mFriendlyName = name; }

@@ -1,9 +1,22 @@
 package ie.t0mm13b.droidstackmk2.helpers;
 
+import java.lang.reflect.Type;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.Client;
+import retrofit.converter.GsonConverter;
 
 /***
  * Singleton class that takes care of the Retrofit client
@@ -21,7 +34,7 @@ public class RetrofitClient {
 	
 	private static RestAdapter mRestAdapterClient;
 	private static boolean isRestClientReady;
-	
+	//
 	public static final int SE_MAX_PAGESIZE = 50;
 	
 	/***
@@ -44,18 +57,24 @@ public class RetrofitClient {
 	}
 	public void Initialize(Client clientReplacement){
 		if (!isRestClientReady){
+			GsonBuilder gb = new GsonBuilder(); 
+			gb.registerTypeAdapter(String.class, new StringConverter()); 
+			Gson gson = gb.create();
 			if (clientReplacement != null){
 				mRestAdapterClient = new RestAdapter.Builder()
 				.setRequestInterceptor(new RetrofitRequestInterceptor())
 				.setClient(clientReplacement)
+				.setConverter(new GsonConverter(gson))
 				.setServer(SEURL)
 				.build();
 			}else{
 				mRestAdapterClient = new RestAdapter.Builder()
 				.setRequestInterceptor(new RetrofitRequestInterceptor())
 				.setServer(SEURL)
+				.setConverter(new GsonConverter(gson))
 				.build();
 			}
+			
 			isRestClientReady = true;
 		}
 	}
@@ -77,5 +96,31 @@ public class RetrofitClient {
 			argReqFacade.addQueryParam(SEKEYP_NAME, SEKEYP_VALUE); // Add in the API key to get around quota limitations
 		}
 		
+	}
+
+	/***
+	 * This class handles certain fields where string value might not be present and to return back "" instead of literal null.
+	 * For {@link String} types only
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
+	public class StringConverter implements JsonSerializer<String>, JsonDeserializer<String> {
+		private static final String TAG = "StringConverter";
+		@Override
+		public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+			Utils.LogIt(TAG, "serialize(...)");
+		    if (src == null){ 
+		    	return new JsonPrimitive(""); 
+		    }else{ 
+		        return new JsonPrimitive(src.toString());
+	        }
+		}
+		@Override
+		public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
+		        throws JsonParseException { 
+			Utils.LogIt(TAG, "deserialize(...)");
+			return json.getAsJsonPrimitive().getAsString(); 
+		} 
 	}
 }
