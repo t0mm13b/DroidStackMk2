@@ -7,10 +7,14 @@ import java.util.Observer;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.User;
 
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
+import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -32,6 +37,7 @@ import android.widget.TextView;
 public class DrawerFragment extends Fragment implements Observer{
 	private static final String TAG = "DrawerFragment";
 	//
+	private ImageView mIVUserGravatar;
 	private TextView mTVUserName;
 	private TextView mTVUserRepCount;
 	private TextView mTVUserBadgeGold;
@@ -44,15 +50,22 @@ public class DrawerFragment extends Fragment implements Observer{
 	private DrawerArrayAdapter mDrawerAdapter;
 	private IDrawerListItem mDrawerListItemListener;
 	private boolean isRegistered = false;
+	//
+	protected ImageLoader mImageLoader;
+	private AnimateFirstDisplayListener mAFDListener;
+	//
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mImageLoader = ImageLoader.getInstance();
+		mAFDListener = new AnimateFirstDisplayListener();
 	}
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.drawer_fragment, container, false);
         //
+        mIVUserGravatar = (ImageView) rootView.findViewById(R.id.ivUserGravatar);
         mTVUserName = (TextView) rootView.findViewById(R.id.tvUserInfoSEId);
         mTVUserRepCount = (TextView) rootView.findViewById(R.id.tvUserInfoRep);
         mTVUserBadgeGold = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesGold);
@@ -118,11 +131,29 @@ public class DrawerFragment extends Fragment implements Observer{
 		if (data != null && data instanceof User){
 			User lUserInfo = (User)data;
 			if (lUserInfo != null){
+				if (lUserInfo.profileImage != null && lUserInfo.profileImage.length() > 0){
+					if (MemoryCacheUtils.findCachedBitmapsForImageUri(lUserInfo.profileImage, ImageLoader.getInstance().getMemoryCache()).size() > 0){
+						mIVUserGravatar.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(lUserInfo.profileImage, ImageLoader.getInstance().getMemoryCache()).get(0));
+					}else{
+						mImageLoader.displayImage(lUserInfo.profileImage, mIVUserGravatar, mAFDListener);
+					}
+				}
 				mTVUserName.setText(lUserInfo.displayName);
-				mTVUserRepCount.setText(NumberFormat.getNumberInstance(Locale.US).format(lUserInfo.reputation));
+				String strRep = String.format(getString(R.string.SEUserRep_fmt), NumberFormat.getNumberInstance(Locale.US).format(lUserInfo.reputation));
+				mTVUserRepCount.setText(strRep);
 				mTVUserBadgeGold.setText(String.valueOf(lUserInfo.badges.gold));
 				mTVUserBadgeSilver.setText(String.valueOf(lUserInfo.badges.silver));
 				mTVUserBadgeBronze.setText(String.valueOf(lUserInfo.badges.bronze));
+			}
+		}
+		if (data != null && data instanceof NetworkUser){
+			NetworkUser nwUserInfo = (NetworkUser)data;
+			if (nwUserInfo != null){
+				String strRep = String.format(getString(R.string.SEUserRep_fmt), NumberFormat.getNumberInstance(Locale.US).format(nwUserInfo.reputation));
+				mTVUserRepCount.setText(strRep);
+				mTVUserBadgeGold.setText(String.valueOf(nwUserInfo.badges.gold));
+				mTVUserBadgeSilver.setText(String.valueOf(nwUserInfo.badges.silver));
+				mTVUserBadgeBronze.setText(String.valueOf(nwUserInfo.badges.bronze));
 			}
 		}
 		//mTVUserName.setText(text)

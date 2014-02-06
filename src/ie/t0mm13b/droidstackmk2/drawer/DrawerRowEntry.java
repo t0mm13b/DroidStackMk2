@@ -1,6 +1,8 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
+import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.Site;
+import com.stackexchange.api.objects.User;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -20,11 +22,12 @@ public class DrawerRowEntry implements Parcelable{
 	 * 
 	 */
 	private static final String TAG = "DrawerRowEntry";
-	private String mDrawerText;
-	private String mDrawerNameOfIcon;
-	private int mDrawerIconId;
-	private String mKey;
-	private Site mSiteInfo;
+	private String mDrawerText = "";
+	private String mDrawerNameOfIcon = "";
+	private int mDrawerIconId = -1;
+	private String mKey = "";
+	private Site mSiteInfo = null;
+	private NetworkUser mNetworkUserInfo = null;
 
 	public DrawerRowEntry(Parcel in){
 		readFromParcel(in);
@@ -37,8 +40,6 @@ public class DrawerRowEntry implements Parcelable{
 			mDrawerIconId = DroidStackMk2App.getAppContext().getResources().getIdentifier(
 					drawerNameOfIcon, "drawable",
 					DroidStackMk2App.getAppContext().getPackageName());
-		}else{
-			mDrawerIconId = -1;
 		}
 	}
 
@@ -62,6 +63,12 @@ public class DrawerRowEntry implements Parcelable{
 	}
 	public Site getSiteInfo(){
 		return mSiteInfo;
+	}
+	public void setNetworkUserInfo(NetworkUser nwUserInfo){
+		mNetworkUserInfo = nwUserInfo;
+	}
+	public NetworkUser getNetworkUserInfo(){
+		return mNetworkUserInfo;
 	}
 	/*
 	 * (non-Javadoc)
@@ -146,6 +153,7 @@ public class DrawerRowEntry implements Parcelable{
 		argDestParcel.writeString(mKey);
 		argDestParcel.writeInt(mDrawerIconId);
 		argDestParcel.writeParcelable(mSiteInfo, argFlags);
+		argDestParcel.writeParcelable(mNetworkUserInfo, argFlags);
 	}
 	private void readFromParcel(Parcel in){
 		mDrawerText = in.readString();
@@ -153,6 +161,7 @@ public class DrawerRowEntry implements Parcelable{
 		mKey = in.readString();
 		mDrawerIconId = in.readInt();
 		mSiteInfo = in.readParcelable(Site.class.getClassLoader());
+		mNetworkUserInfo = in.readParcelable(NetworkUser.class.getClassLoader());
 	}
 	
 	public static final Parcelable.Creator<DrawerRowEntry> CREATOR = new Parcelable.Creator<DrawerRowEntry>(){

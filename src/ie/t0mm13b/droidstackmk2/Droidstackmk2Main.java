@@ -380,6 +380,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 												assocSite.iconUrl, 
 												assocSite.apiSiteParameter);
 										dre.setSiteInfo(assocSite);
+										dre.setNetworkUserInfo(nw);
 										mFragmentDrawer.getDrawerAdapter().add(dre);
 									}else{
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite is null! nw = " + nw.toString());
@@ -404,6 +405,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		//
 		frag = SEFragmentGeneric.newInstance(position, dre);
 		if (frag != null) {
+			
 			((SEFragmentGeneric)frag).registerFragmentNotify(this);
 
 			// Insert the fragment by replacing any existing fragment
@@ -412,6 +414,11 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			// add the transaction to the back stack so the user can navigate back
 			transaction.addToBackStack(frag.getClass().getSimpleName());
 			transaction.commit();
+			//
+			NetworkUser nwUser = dre.getNetworkUserInfo();
+			if (nwUser != null){
+				mUserInfo.setNetworkUserInfo(nwUser);
+			}
 			// Highlight the selected item, update the title, and close the drawer
 			mActionBar.setTitle(dre.getDrawerText());
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
@@ -604,6 +611,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 
 	class DrawerUserSEInfo extends Observable{
 		private User mUserInfo;
+		private NetworkUser mNetworkUserInfo;
 		public User getUserInfo(){
 			return mUserInfo;
 		}
@@ -611,6 +619,14 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			mUserInfo = userInfo;
 			setChanged();
 			notifyObservers(getUserInfo());
+		}
+		public NetworkUser getNetworkUser(){
+			return mNetworkUserInfo;
+		}
+		public void setNetworkUserInfo(NetworkUser nwUserInfo){
+			mNetworkUserInfo = nwUserInfo;
+			setChanged();
+			notifyObservers(getNetworkUser());
 		}
 	}
 	class cbGetUsersById implements Callback<CommonSEWrapper<User>>{

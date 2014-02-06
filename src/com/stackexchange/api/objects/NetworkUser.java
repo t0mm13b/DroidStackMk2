@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.UserType;
 
@@ -12,7 +15,7 @@ import com.stackexchange.api.objects.Enums.UserType;
  *
  * @see http://api.stackexchange.com/docs/types/network-user
  */
-public class NetworkUser {
+public class NetworkUser implements Parcelable{
 	@SerializedName("account_id") public int accountId = -1;
 	@SerializedName("answer_count") public int answerCount = -1;
 	@SerializedName("badge_counts") public BadgeCounts badges;
@@ -23,8 +26,12 @@ public class NetworkUser {
 	@SerializedName("site_name") public String siteName;
 	@SerializedName("site_url") public String siteUrl;
 	@SerializedName("user_id") public int userId = -1;
-	@SerializedName("user_type") public UserType userType = UserType.Unknown;
+	@SerializedName("user_type") public transient UserType userType = UserType.Unknown; // Excluded from default filter... 
 
+	private NetworkUser(Parcel in){
+		readFromParcel(in);
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -124,4 +131,48 @@ public class NetworkUser {
 		builder.append("]");
 		return builder.toString();
 	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(accountId);
+		dest.writeInt(answerCount);
+		dest.writeParcelable(badges, flags);
+		dest.writeLong(creationDate);
+		dest.writeLong(lastAccessDate);
+		dest.writeInt(questionCount);
+		dest.writeInt(reputation);
+		dest.writeString(siteName);
+		dest.writeString(siteUrl);
+		dest.writeInt(userId);
+		dest.writeInt(userType.ordinal());
+	}
+	
+	private void readFromParcel(Parcel src){
+		accountId = src.readInt();
+		answerCount = src.readInt();
+		badges = src.readParcelable(BadgeCounts.class.getClassLoader());
+		creationDate = src.readLong();
+		lastAccessDate = src.readLong();
+		questionCount = src.readInt();
+		reputation = src.readInt();
+		siteName = src.readString();
+		siteUrl = src.readString();
+		userId = src.readInt();
+		userType = UserType.values()[src.readInt()];
+	}
+	public static final Parcelable.Creator<NetworkUser> CREATOR = new Parcelable.Creator<NetworkUser>() {
+
+		@Override
+		public NetworkUser createFromParcel(Parcel source) {
+			return new NetworkUser(source);
+		}
+
+		@Override
+		public NetworkUser[] newArray(int size) {
+			return new NetworkUser[size];
+		}
+	};
 }

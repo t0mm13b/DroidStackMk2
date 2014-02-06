@@ -32,5 +32,8 @@
 	<string name="drawer_sample_txt">Drawer Sample Text</string>
 	<string name="emptyDrawerList">No Site(s) found.</string>
 	<string name="SEUserId_default">SE User ID</string>
+	<string name="SEUserRep_fmt">Reputation: %1$s</string>
 	<string name="SEUserRep_default">Reputation: 99999</string>
+	<string name="SEUserBadge_default">Badges:</string>
+	<string name="SEUserBadgeCount_default">99</string>
 </resources>
