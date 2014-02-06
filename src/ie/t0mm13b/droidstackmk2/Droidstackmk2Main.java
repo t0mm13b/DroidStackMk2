@@ -291,9 +291,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	 * StackExchange site in order to obtain their flair etc and to pull in associated accounts if necessary.
 	 */
 	@Override
-	public void cbObtainUserId(int position, final DrawerRowEntry dre) {
+	public void cbObtainUserId(final int position, final DrawerRowEntry dre) {
 		Utils.LogIt(TAG, String.format("cbObtainUserId: dre = " + dre.toString()));
-		selectItem(position, dre);
 		// Check against the shared prefs for that site info?
 		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre);
 		dlg.setIDrawerUserPickerDialog(new IDrawerUserPickerDialog(){
@@ -331,7 +330,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 									User selectdUser = argCSEWrapper.itemsList.get(0);
 									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
 									mUserInfo.setUserInfo(selectdUser);
-									getAssociatedSites(users, mUserInfo.getUserInfo());
+									getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
 								}
 								MenuItemCompat.setActionView(mOptionsRefresh, null);	
 							}
@@ -343,7 +342,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		dlg.show(getSupportFragmentManager(), "userPickrDialog");
 	}	
 	
-	private void getAssociatedSites(final IUsers userAPI, final User userInfo){
+	private void getAssociatedSites(final IUsers userAPI, final User userInfo, final int position, final DrawerRowEntry dre){
 		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
 		userAPI.getAssociatedAccountsByAccountId(
 				String.valueOf(userInfo.accountId), 
@@ -360,6 +359,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 
 					@Override
 					public void success(CommonSEWrapper<NetworkUser> argCSEWrapper, Response argResponse) {
+						DrawerRowEntry newDRE = null;
 						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() > 0){
 							mFragmentDrawer.getDrawerAdapter().clearAll();
 							for (NetworkUser nw : argCSEWrapper.itemsList){
@@ -368,13 +368,19 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 									if (assocSite != null){
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite = " + assocSite.toString());
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) nw = " + nw.toString());
-										DrawerRowEntry dre = new DrawerRowEntry(
+										DrawerRowEntry dreAssoc = new DrawerRowEntry(
 												StringEscapeUtils.unescapeHtml4(assocSite.name), 
 												assocSite.iconUrl, 
 												assocSite.apiSiteParameter);
-										dre.setSiteInfo(assocSite);
-										dre.setNetworkUserInfo(nw);
-										mFragmentDrawer.getDrawerAdapter().add(dre);
+										dreAssoc.setSiteInfo(assocSite);
+										dreAssoc.setNetworkUserInfo(nw);
+										if (dre.equals(dreAssoc)){
+											// Yup! Longpressed on row matches this associated newly recreated entry, which will have the correct
+											// rep points etc
+											Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) - Found the intended target!");
+											newDRE = dreAssoc;
+										}
+										mFragmentDrawer.getDrawerAdapter().add(dreAssoc);										
 									}else{
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite is null! nw = " + nw.toString());
 									}
@@ -383,6 +389,9 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 							mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();							
 						}
 						MenuItemCompat.setActionView(mOptionsRefresh, null);
+						// If we have not found the target of long-pressed row, fallback
+						selectItem(position, (newDRE == null) ? dre : newDRE); 
+						
 					}
 					
 				});
@@ -436,7 +445,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	public void cbFragmentFinished() {
 		// TODO Auto-generated method stub
 		Utils.LogIt(TAG, "cbFragmentFinished");
-		dumpStack();
+//		dumpStack();
 		try{
 			mStackDRE.pop();
 			if (!mStackDRE.isEmpty()){

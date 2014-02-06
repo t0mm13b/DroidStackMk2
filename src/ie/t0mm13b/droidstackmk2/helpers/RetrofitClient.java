@@ -117,7 +117,7 @@ public class RetrofitClient {
 		private static final String TAG = "StringConverter";
 		@Override
 		public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
-			Utils.LogIt(TAG, "serialize(...)");
+//			Utils.LogIt(TAG, "serialize(...)");
 		    if (src == null){ 
 		    	return new JsonPrimitive(""); 
 		    }else{ 
@@ -127,7 +127,7 @@ public class RetrofitClient {
 		@Override
 		public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) 
 		        throws JsonParseException { 
-			Utils.LogIt(TAG, "deserialize(...)");
+//			Utils.LogIt(TAG, "deserialize(...)");
 			return json.getAsJsonPrimitive().getAsString(); 
 		} 
 	}
