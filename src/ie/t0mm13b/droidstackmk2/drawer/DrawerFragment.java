@@ -1,5 +1,14 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.stackexchange.api.objects.User;
+
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.Bundle;
@@ -20,10 +29,18 @@ import android.widget.TextView;
  * @author t0mm13b
  *
  */
-public class DrawerFragment extends Fragment{
+public class DrawerFragment extends Fragment implements Observer{
 	private static final String TAG = "DrawerFragment";
+	//
+	private TextView mTVUserName;
+	private TextView mTVUserRepCount;
+	private TextView mTVUserBadgeGold;
+	private TextView mTVUserBadgeSilver;
+	private TextView mTVUserBadgeBronze;
+	//
 	private ListView mDrawerList;
 	private TextView mDrawerListEmpty;
+	//
 	private DrawerArrayAdapter mDrawerAdapter;
 	private IDrawerListItem mDrawerListItemListener;
 	private boolean isRegistered = false;
@@ -35,6 +52,12 @@ public class DrawerFragment extends Fragment{
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.drawer_fragment, container, false);
+        //
+        mTVUserName = (TextView) rootView.findViewById(R.id.tvUserInfoSEId);
+        mTVUserRepCount = (TextView) rootView.findViewById(R.id.tvUserInfoRep);
+        mTVUserBadgeGold = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesGold);
+        mTVUserBadgeSilver = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesSilver);
+        mTVUserBadgeBronze = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesBronze);
         //
         mDrawerList = (ListView) rootView.findViewById(R.id.lvDrawerItems);
         mDrawerListEmpty = (TextView) rootView.findViewById(R.id.emptyDrawerList);
@@ -86,5 +109,22 @@ public class DrawerFragment extends Fragment{
 	}
 	public boolean isListenerRegistered(){
 		return isRegistered;
+	}
+
+	@Override
+	public void update(Observable observable, Object data) {
+		Utils.LogIt(TAG, "update(...) data = " + data.toString());
+		// Here we update the user info in the fragment
+		if (data != null && data instanceof User){
+			User lUserInfo = (User)data;
+			if (lUserInfo != null){
+				mTVUserName.setText(lUserInfo.displayName);
+				mTVUserRepCount.setText(NumberFormat.getNumberInstance(Locale.US).format(lUserInfo.reputation));
+				mTVUserBadgeGold.setText(String.valueOf(lUserInfo.badges.gold));
+				mTVUserBadgeSilver.setText(String.valueOf(lUserInfo.badges.silver));
+				mTVUserBadgeBronze.setText(String.valueOf(lUserInfo.badges.bronze));
+			}
+		}
+		//mTVUserName.setText(text)
 	}
 }

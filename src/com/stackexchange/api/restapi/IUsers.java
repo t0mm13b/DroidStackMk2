@@ -8,6 +8,7 @@ import retrofit.http.Query;
 import com.stackexchange.api.objects.Answer;
 import com.stackexchange.api.objects.Badge;
 import com.stackexchange.api.objects.Comment;
+import com.stackexchange.api.objects.CommonSEWrapper;
 import com.stackexchange.api.objects.Enums.SortOrder;
 import com.stackexchange.api.objects.Enums.SortType;
 import com.stackexchange.api.objects.NetworkUser;
@@ -114,7 +115,7 @@ public interface IUsers {
 			@Query("min") String minDate,
 			@Query("max") String maxDate,
 			@Query("sort") SortType typeOfSort,
-			Callback<User> cbUsersById);
+			Callback<CommonSEWrapper<User>> cbUsersById);
 	
 	/***
 	 * Returns the answers the users in {ids} have posted.

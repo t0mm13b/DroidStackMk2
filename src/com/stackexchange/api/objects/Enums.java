@@ -23,10 +23,10 @@ public class Enums {
 	 *
 	 */
 	public static enum UserType{
-		Unregistered("unregistered"),
-		Registered("registered"),
-		Moderator("moderator"),
-		DoesNotExist("does_not_exist"),
+		@SerializedName("unregistered") Unregistered("unregistered"),
+		@SerializedName("registered") Registered("registered"),
+		@SerializedName("moderator") Moderator("moderator"),
+		@SerializedName("does_not_exist") DoesNotExist("does_not_exist"),
 		Unknown("Unknown");
 		private String mFriendlyName;
 		private UserType(String name){this.mFriendlyName = name; }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EmptyStackException;
+import java.util.Observable;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -20,9 +21,14 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.stackexchange.api.objects.CommonSEWrapper;
 import com.stackexchange.api.objects.Enums.SiteState;
 import com.stackexchange.api.objects.Enums.SiteType;
+import com.stackexchange.api.objects.Enums.SortOrder;
+import com.stackexchange.api.objects.Enums.SortType;
 import com.stackexchange.api.objects.Site;
+import com.stackexchange.api.objects.User;
 import com.stackexchange.api.restapi.ISites;
+import com.stackexchange.api.restapi.IUsers;
 
+import retrofit.Callback;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.RetrofitError;
 import retrofit.client.Client;
@@ -50,6 +56,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 /***
  * Main Fragment Activity class that handles the Navigation Bar and keeping track of fragments.
@@ -90,6 +97,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	private Stack<String> mStackActionTitles = new Stack<String>();
 	//
 	private DrawerFragment mFragmentDrawer;
+	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +117,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			if (!mFragmentDrawer.isListenerRegistered()){
 				mFragmentDrawer.registerListener(this);
 			}
+			mUserInfo.addObserver(mFragmentDrawer);
 		}
 		//
 		Fragment frag = new DroidStackMk2Fragment();
@@ -296,8 +305,39 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 				// TODO Auto-generated method stub
 				// Now we have the account number....
 				Utils.LogIt(TAG, String.format("dlg::cbSelectedSEAccount(...) - seUserId = %s", seUserId));
+				MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
+
 				// Ok, now the user id is picked and returned back, we need to pull that in!
-				
+				IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
+				users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
+						"", 
+						"", 
+						"", 
+						"", 
+						SortOrder.Desc, 
+						"", 
+						"", 
+						SortType.Reputation,
+						new Callback<CommonSEWrapper<User>>(){
+
+							@Override
+							public void failure(RetrofitError arg0) {
+								MenuItemCompat.setActionView(mOptionsRefresh, null);
+								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, failure!", Toast.LENGTH_SHORT);
+							}
+
+							@Override
+							public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
+								Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - " + argCSEWrapper.toString());
+								if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
+									User selectdUser = argCSEWrapper.itemsList.get(0);
+									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
+									mUserInfo.setUserInfo(selectdUser);
+								}
+								MenuItemCompat.setActionView(mOptionsRefresh, null);	
+							}
+					
+				});
 			}
 			
 		});
@@ -508,5 +548,15 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}
 	}
 
-
+	class DrawerUserSEInfo extends Observable{
+		private User mUserInfo;
+		public User getUserInfo(){
+			return mUserInfo;
+		}
+		public void setUserInfo(User userInfo){
+			mUserInfo = userInfo;
+			setChanged();
+			notifyObservers(getUserInfo());
+		}
+	}
 }

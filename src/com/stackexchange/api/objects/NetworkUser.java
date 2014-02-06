@@ -17,7 +17,7 @@ import com.stackexchange.api.objects.Enums.UserType;
 public class NetworkUser {
 	@SerializedName("account_id") public int accountId = -1;
 	@SerializedName("answer_count") public int answerCount = -1;
-	@SerializedName("badge_counts") public int[] badgeCount = new int[3];
+	@SerializedName("badge_counts") public BadgeCounts badges;
 	@SerializedName("creation_date") public long creationDate = -1;
 	@SerializedName("last_access_date") public long lastAccessDate = -1;
 	@SerializedName("question_count") public int questionCount = -1;
@@ -36,17 +36,15 @@ public class NetworkUser {
 		int result = 1;
 		result = prime * result + accountId;
 		result = prime * result + answerCount;
-		result = prime * result + Arrays.hashCode(badgeCount);
-		result = prime * result
-				+ (int) (creationDate ^ (creationDate >>> 32));
+		result = prime * result + ((badges == null) ? 0 : badges.hashCode());
+		result = prime * result + (int) (creationDate ^ (creationDate >>> 32));
 		result = prime * result
 				+ (int) (lastAccessDate ^ (lastAccessDate >>> 32));
 		result = prime * result + questionCount;
 		result = prime * result + reputation;
 		result = prime * result
 				+ ((siteName == null) ? 0 : siteName.hashCode());
-		result = prime * result
-				+ ((siteUrl == null) ? 0 : siteUrl.hashCode());
+		result = prime * result + ((siteUrl == null) ? 0 : siteUrl.hashCode());
 		result = prime * result + userId;
 		result = prime * result
 				+ ((userType == null) ? 0 : userType.hashCode());
@@ -68,7 +66,10 @@ public class NetworkUser {
 			return false;
 		if (answerCount != other.answerCount)
 			return false;
-		if (!Arrays.equals(badgeCount, other.badgeCount))
+		if (badges == null) {
+			if (other.badges != null)
+				return false;
+		} else if (!badges.equals(other.badges))
 			return false;
 		if (creationDate != other.creationDate)
 			return false;
@@ -104,8 +105,8 @@ public class NetworkUser {
 		builder.append(accountId);
 		builder.append(", answerCount=");
 		builder.append(answerCount);
-		builder.append(", badgeCount=");
-		builder.append(Arrays.toString(badgeCount));
+		builder.append(", badges=");
+		builder.append(badges);
 		builder.append(", creationDate=");
 		builder.append(creationDate);
 		builder.append(", lastAccessDate=");

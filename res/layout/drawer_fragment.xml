@@ -6,10 +6,44 @@
 	<FrameLayout android:id="@+id/frLayOutUserInfo"
 		android:layout_width="match_parent" android:layout_height="wrap_content">
 
-		<TextView android:id="@+id/textView1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:padding="5dp"
-			android:text="SE User Id" android:textColor="#ffffff"
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+		<RelativeLayout android:id="@+id/relUserInfo"
+			android:layout_width="match_parent" android:layout_height="wrap_content">
+
+			<TextView android:id="@+id/tvUserInfoSEId"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:padding="5dp" android:text="@string/SEUserId_default"
+				android:textColor="#ffffff" android:textAppearance="?android:attr/textAppearanceLarge" />
+			<TextView android:id="@+id/tvUserInfoRep"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:padding="5dp" android:text="@string/SEUserRep_default"
+				android:textColor="#ffffff" android:textAppearance="?android:attr/textAppearanceMedium"
+				android:layout_below="@+id/tvUserInfoSEId" />
+			<TextView android:id="@+id/tvUserInfoBadges"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:padding="5dp" android:text="Badges:" android:textColor="#ffffff"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:layout_below="@+id/tvUserInfoRep" />
+			<RelativeLayout android:id="@+id/relUserInfoBadges"
+				android:layout_toRightOf="@+id/tvUserInfoBadges"
+				android:layout_below="@+id/tvUserInfoRep" android:layout_width="match_parent"
+				android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall">
+				<TextView android:id="@+id/tvUserInfoBadgesGold"
+					android:layout_width="50dp" android:layout_height="wrap_content"
+					android:layout_toRightOf="@+id/relUserInfoBadges" android:gravity="center"
+					android:padding="5dp" android:text="99" android:textColor="@color/Gold"
+					android:textStyle="bold" />
+				<TextView android:id="@+id/tvUserInfoBadgesSilver"
+					android:layout_width="50dp" android:layout_height="wrap_content"
+					android:layout_toRightOf="@+id/tvUserInfoBadgesGold"
+					android:gravity="center" android:padding="5dp" android:text="99"
+					android:textColor="@color/Silver" android:textStyle="bold" />
+				<TextView android:id="@+id/tvUserInfoBadgesBronze"
+					android:layout_width="50dp" android:layout_height="wrap_content"
+					android:layout_toRightOf="@+id/tvUserInfoBadgesSilver"
+					android:gravity="center" android:padding="5dp" android:text="99"
+					android:textColor="@color/Peru" android:textStyle="bold" />
+			</RelativeLayout>
+		</RelativeLayout>
 	</FrameLayout>
 
 	<FrameLayout android:id="@+id/frLayOutDrawerMenu"
@@ -22,10 +56,8 @@
 			android:dividerHeight="0dp" />
 		<TextView android:id="@+id/emptyDrawerList"
 			android:layout_width="match_parent" android:layout_height="match_parent"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:textColor="#ffffff"
-			android:text="@string/emptyDrawerList" 
+			android:layout_gravity="center" android:gravity="center"
+			android:textColor="#ffffff" android:text="@string/emptyDrawerList"
 			android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	</FrameLayout>

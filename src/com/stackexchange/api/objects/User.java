@@ -22,7 +22,7 @@ public class User {
 	@SerializedName("account_id") public int accountId = -1;
 	@SerializedName("age") public int age = -1;
 	@SerializedName("answer_count") public int answerCount = -1;
-	@SerializedName("badge_counts") public int[] badgeCount = new int[3];
+	@SerializedName("badge_counts") public BadgeCounts badges;
 	@SerializedName("creation_date") public long creationDate = -1;
 	@SerializedName("display_name") public String displayName = "";
 	@SerializedName("down_vote_count") public int downvoteCount = -1;
@@ -53,15 +53,13 @@ public class User {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((aboutMe == null) ? 0 : aboutMe.hashCode());
+		result = prime * result + ((aboutMe == null) ? 0 : aboutMe.hashCode());
 		result = prime * result + acceptRate;
 		result = prime * result + accountId;
 		result = prime * result + age;
 		result = prime * result + answerCount;
-		result = prime * result + Arrays.hashCode(badgeCount);
-		result = prime * result
-				+ (int) (creationDate ^ (creationDate >>> 32));
+		result = prime * result + ((badges == null) ? 0 : badges.hashCode());
+		result = prime * result + (int) (creationDate ^ (creationDate >>> 32));
 		result = prime * result
 				+ ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + downvoteCount;
@@ -118,7 +116,10 @@ public class User {
 			return false;
 		if (answerCount != other.answerCount)
 			return false;
-		if (!Arrays.equals(badgeCount, other.badgeCount))
+		if (badges == null) {
+			if (other.badges != null)
+				return false;
+		} else if (!badges.equals(other.badges))
 			return false;
 		if (creationDate != other.creationDate)
 			return false;
@@ -197,8 +198,8 @@ public class User {
 		builder.append(age);
 		builder.append(", answerCount=");
 		builder.append(answerCount);
-		builder.append(", badgeCount=");
-		builder.append(Arrays.toString(badgeCount));
+		builder.append(", badges=");
+		builder.append(badges);
 		builder.append(", creationDate=");
 		builder.append(creationDate);
 		builder.append(", displayName=");

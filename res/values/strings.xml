@@ -31,4 +31,6 @@
 	</string-array>
 	<string name="drawer_sample_txt">Drawer Sample Text</string>
 	<string name="emptyDrawerList">No Site(s) found.</string>
+	<string name="SEUserId_default">SE User ID</string>
+	<string name="SEUserRep_default">Reputation: 99999</string>
 </resources>
