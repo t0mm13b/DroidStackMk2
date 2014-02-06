@@ -97,7 +97,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private boolean mRefreshing = false;
 	//
-	private Stack<String> mStackActionTitles = new Stack<String>();
 	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
 	//
 	private DrawerFragment mFragmentDrawer;
@@ -130,7 +129,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.content_frame, frag);
 		transaction.commit();
-		mStackActionTitles.push(getString(R.string.default_view_title));
 		//
 		RetrofitClient.getInstance().Initialize(null);
 		RetrofitClient.getInstance().SetLogging(LogLevel.BASIC);
@@ -171,8 +169,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		// Pass the event to ActionBarDrawerToggle, if it returns
-		// true, then it has handled the app icon touch event
+		// Pass the event to ActionBarDrawerToggle, if it returns true, then it has handled the app icon touch event
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
@@ -200,12 +197,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			if (mOptionsRefresh != null) {
 				if (refreshing) {
 					this.setProgressBarVisibility(true);
-					
-					//MenuItemCompat.setActionView(mOptionsRefresh,
-					//		R.layout.actionbar_indeterminate_progress);
 					new TestTask().execute("test");
 				} else {
-					//MenuItemCompat.setActionView(mOptionsRefresh, null);
 					this.setProgressBarVisibility(false);
 				}
 			}
@@ -290,7 +283,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	@Override
 	public void cbDrawerListItemClick(int position, DrawerRowEntry dre) {
 		Utils.LogIt(TAG, String.format("cbDrawerListItemClick(...) - position = %d; actionBarText = %s", position, dre.getDrawerText()));
-		//selectItem(position, actionBarText);
 		selectItem(position, dre);
 	}
 
@@ -430,7 +422,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	
 	private void dumpStack(){
 		Utils.LogIt(TAG, "dumpStack *** ENTER ***");
-		//for (String s : mStackActionTitles){
 		for (DrawerRowEntry dre : mStackDRE){
 			Log.d(TAG, "dumpStack: dre = " + dre);
 		}
@@ -447,14 +438,13 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		Utils.LogIt(TAG, "cbFragmentFinished");
 		dumpStack();
 		try{
-//			mStackActionTitles.pop();
 			mStackDRE.pop();
-//			if (!mStackActionTitles.isEmpty()){
 			if (!mStackDRE.isEmpty()){
-//				mActionBar.setTitle(mStackActionTitles.peek());
 				DrawerRowEntry dre = mStackDRE.peek();
-				mActionBar.setTitle(dre.getDrawerText());
-				mUserInfo.setNetworkUserInfo(dre.getNetworkUserInfo());
+				if (dre != null){
+					mActionBar.setTitle(dre.getDrawerText());
+					mUserInfo.setNetworkUserInfo(dre.getNetworkUserInfo());
+				}
 			}
 		}catch(EmptyStackException eseEx){
 			mActionBar.setTitle(getString(R.string.default_view_title));
@@ -493,35 +483,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}
 	};
 	
-	/***
-	 * Fake StackExchange Server Client
-	 * 
-	 * @author t0mm13b
-	 *
-	 */
-	public class FakeStackExchange implements Client{
-		private static final String TAG = "FakeStackExchange";
-		// Could have hashmap of each json, some NOT all of them!
-		@Override
-		public Response execute(Request argRequest) throws IOException {
-			// TODO Auto-generated method stub
-			Uri uri = Uri.parse(argRequest.getUrl());
-
-	        Log.d(TAG, "fetching uri: " + uri.toString());
-
-	        String responseString = "";
-
-	        if(uri.getPath().equals("/path/of/interest")) {
-	            responseString = "JSON STRING HERE";
-	        } else {
-	            responseString = "OTHER JSON RESPONSE STRING";
-	        }
-
-	        return new Response(200, "nothing", Collections.EMPTY_LIST, new TypedByteArray("application/json", responseString.getBytes()));
-
-		}
-		
-	}
 /*
 	@Override
 	public boolean onQueryTextChange(String arg0) {
@@ -634,21 +595,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			mNetworkUserInfo = nwUserInfo;
 			setChanged();
 			notifyObservers(getNetworkUser());
-		}
-	}
-	class cbGetUsersById implements Callback<CommonSEWrapper<User>>{
-		private static final String TAG = "UserHandler";
-
-		@Override
-		public void failure(RetrofitError arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void success(CommonSEWrapper<User> arg0, Response arg1) {
-			// TODO Auto-generated method stub
-			
 		}
 	}
 }

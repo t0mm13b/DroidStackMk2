@@ -126,7 +126,7 @@ public class DrawerFragment extends Fragment implements Observer{
 
 	@Override
 	public void update(Observable observable, Object data) {
-		Utils.LogIt(TAG, "update(...) data = " + data.toString());
+		if (data != null) Utils.LogIt(TAG, "update(...) data = " + data.toString());
 		// Here we update the user info in the fragment
 		if (data != null && data instanceof User){
 			User lUserInfo = (User)data;

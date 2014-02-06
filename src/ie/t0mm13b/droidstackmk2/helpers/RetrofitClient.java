@@ -1,6 +1,11 @@
 package ie.t0mm13b.droidstackmk2.helpers;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collections;
+
+import android.net.Uri;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,7 +21,10 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.Client;
+import retrofit.client.Request;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
+import retrofit.mime.TypedByteArray;
 
 /***
  * Singleton class that takes care of the Retrofit client
@@ -123,4 +131,35 @@ public class RetrofitClient {
 			return json.getAsJsonPrimitive().getAsString(); 
 		} 
 	}
+	
+	/***
+	 * Fake StackExchange Server Client
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
+	public class FakeStackExchange implements Client{
+		private static final String TAG = "FakeStackExchange";
+		// Could have hashmap of each json, some NOT all of them!
+		@Override
+		public Response execute(Request argRequest) throws IOException {
+			// TODO Auto-generated method stub
+			Uri uri = Uri.parse(argRequest.getUrl());
+
+	        Log.d(TAG, "fetching uri: " + uri.toString());
+
+	        String responseString = "";
+
+	        if(uri.getPath().equals("/path/of/interest")) {
+	            responseString = "JSON STRING HERE";
+	        } else {
+	            responseString = "OTHER JSON RESPONSE STRING";
+	        }
+
+	        return new Response(200, "nothing", Collections.EMPTY_LIST, new TypedByteArray("application/json", responseString.getBytes()));
+
+		}
+		
+	}
+
 }
