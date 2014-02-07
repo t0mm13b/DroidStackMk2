@@ -6,6 +6,7 @@ package ie.t0mm13b.droidstackmk2.helpers;
 import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,17 +20,20 @@ public class BaseFragment extends Fragment {
 
 	private ActionBarActivity mActionBarActivity;
 	private IFragmentNotify mFragmentNotify;
+	private ActionBar mActionBar;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mActionBarActivity = (ActionBarActivity) this.getActivity();
-		mActionBarActivity.getSupportActionBar()
-				.setDisplayHomeAsUpEnabled(true);
-		mActionBarActivity.getSupportActionBar().setHomeButtonEnabled(true);
-
+		mActionBar = mActionBarActivity.getSupportActionBar();
+		mActionBar.setDisplayHomeAsUpEnabled(true);
+		mActionBar.setHomeButtonEnabled(true);
 	}
 
+	protected ActionBar getActionBar(){
+		return mActionBar;
+	}
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		MenuInflater mInflater = getActivity().getMenuInflater();

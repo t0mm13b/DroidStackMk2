@@ -2,7 +2,16 @@ package ie.t0mm13b.droidstackmk2.ui;
 
 import com.squareup.picasso.Picasso;
 
+import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +36,9 @@ public class SEFragmentGeneric extends BaseFragment{
 	private ImageView ivLogo;
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
+	private ViewPager mViewPager;
+	private VPSEGA  mSEViewPagerAdapter;
+	private ActionBar mSEFragActionBar;
 	
 	public static SEFragmentGeneric newInstance(int position, DrawerRowEntry dre) {
 		SEFragmentGeneric frag = new SEFragmentGeneric();
@@ -52,13 +64,34 @@ public class SEFragmentGeneric extends BaseFragment{
         }
     }
 
+	@Override
+	public void onAttach(Activity activity){
+		super.onAttach(activity);
+		mSEFragActionBar = getActionBar();
+		mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	}
+	
+	@Override
+	public void onDetach(){
+		super.onDetach();
+		mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+	}
+	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generic, container, false);
-        ivLogo = (ImageView)rootView.findViewById(R.id.ivSELogo);
+//        ivLogo = (ImageView)rootView.findViewById(R.id.ivSELogo);
+        mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
         //
         if (mDrawerEntry != null){
-        	Picasso.with(getActivity()).load(mDrawerEntry.getDrawerIcon()).into(ivLogo);
+        	mSEViewPagerAdapter = new VPSEGA(getChildFragmentManager());
+        	
+        	mViewPager.setAdapter(mSEViewPagerAdapter);
+
+//        	Picasso.with(getActivity())
+//        	.load(mDrawerEntry.getDrawerIcon())
+//        	.resize(96, 96)
+//        	.into(ivLogo);
         }
         //
         return rootView;
@@ -77,5 +110,25 @@ public class SEFragmentGeneric extends BaseFragment{
         // return true;
         // }
         return super.onOptionsItemSelected(item);
+    }
+    class VPSEGA extends FragmentPagerAdapter{
+    	private static final String TAG = "VPSEGA";
+		public VPSEGA(FragmentManager fm) {
+			super(fm);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public Fragment getItem(int argPosition) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+    	
     }
 }
