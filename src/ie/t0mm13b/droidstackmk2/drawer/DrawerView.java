@@ -1,11 +1,8 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.squareup.picasso.Picasso;
 
 import ie.t0mm13b.droidstackmk2.R;
-import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -24,9 +21,6 @@ public class DrawerView extends RelativeLayout{
 
 	private ImageView mDrawerImage;
 	private TextView mDrawerTextEntry;
-//	protected ImageLoader mImageLoader;
-//	
-//	private AnimateFirstDisplayListener mAFDListener;
 	
 	public DrawerView(Context context) {
 		super(context);
@@ -48,8 +42,6 @@ public class DrawerView extends RelativeLayout{
 	 */
 	private void internalInit(){
 		if (!isInEditMode()){
-//			mImageLoader = ImageLoader.getInstance();
-//			mAFDListener = new AnimateFirstDisplayListener();
 		}
 	}
 
@@ -73,11 +65,6 @@ public class DrawerView extends RelativeLayout{
 				mDrawerImage.setImageResource(dre.getDrawerId());
 			}else{
 				Picasso.with(getContext()).load(dre.getDrawerIcon()).into(mDrawerImage);
-//				if (MemoryCacheUtils.findCachedBitmapsForImageUri(dre.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).size() > 0){
-//					mDrawerImage.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(dre.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).get(0));
-//				}else{
-//					mImageLoader.displayImage(dre.getDrawerIcon(), mDrawerImage, mAFDListener);
-//				}
 			}
 		}
 	}

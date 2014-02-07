@@ -1,15 +1,9 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.squareup.picasso.Picasso;
 
 import ie.t0mm13b.droidstackmk2.R;
-import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -34,9 +28,6 @@ public class DrawerUserDialogFragment extends DialogFragment{
 	private EditText mEditSENumber;
 	private Button mButtonSubmit;
 	private IDrawerUserPickerDialog mUserPickerDialog;
-	private ImageLoader mImageLoader;
-	
-	private AnimateFirstDisplayListener mAFDListener;
 	
 	public static DrawerUserDialogFragment newInstance(DrawerRowEntry dre){
 		DrawerUserDialogFragment dudFrag = new DrawerUserDialogFragment();
@@ -56,8 +47,6 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		if (args != null && args.containsKey(DUD_DRE_KEY)){
 			dre = args.getParcelable(DUD_DRE_KEY);
 		}
-		mImageLoader = ImageLoader.getInstance();
-		mAFDListener = new AnimateFirstDisplayListener();
 		final Dialog dudlg = new Dialog(getActivity());
 		dudlg.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		dudlg.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -69,11 +58,7 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		mButtonSubmit = (Button)dudlg.findViewById(R.id.btnDrawrUsrPickrSubmit);
 		if (dre != null){
 			mTVSiteName.setText(dre.getDrawerText());
-			if (MemoryCacheUtils.findCachedBitmapsForImageUri(dre.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).size() > 0){
-				mIVSiteLogo.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(dre.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).get(0));
-			}else{
-				mImageLoader.displayImage(dre.getDrawerIcon(), mIVSiteLogo, mAFDListener);
-			}
+			Picasso.with(getActivity()).load(dre.getDrawerIcon()).into(mIVSiteLogo);
 		}
 		mButtonSubmit.setOnClickListener(new OnClickListener(){
 

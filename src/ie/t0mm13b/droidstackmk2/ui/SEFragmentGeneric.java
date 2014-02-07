@@ -1,7 +1,5 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.squareup.picasso.Picasso;
 
 import android.os.Bundle;
@@ -16,7 +14,6 @@ import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
 import ie.t0mm13b.droidstackmk2.helpers.BaseFragment;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 
 /***
  * The Generic fragment that shall incorporate the visuals of teh StackExchange site network depending on what was selected via 
@@ -28,8 +25,6 @@ import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 public class SEFragmentGeneric extends BaseFragment{
 	private static final String TAG = "SEFragmentGeneric";
 	private ImageView ivLogo;
-//	protected ImageLoader mImageLoader;
-//	private AnimateFirstDisplayListener mAFDListener = new AnimateFirstDisplayListener();
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
 	
@@ -64,11 +59,6 @@ public class SEFragmentGeneric extends BaseFragment{
         //
         if (mDrawerEntry != null){
         	Picasso.with(getActivity()).load(mDrawerEntry.getDrawerIcon()).into(ivLogo);
-//			if (MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).size() > 0){
-//				ivLogo.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).get(0));
-//			}else{
-//				mImageLoader.displayImage(mDrawerEntry.getDrawerIcon(), ivLogo, mAFDListener);
-//			}
         }
         //
         return rootView;

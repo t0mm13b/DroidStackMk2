@@ -5,17 +5,12 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.squareup.picasso.Picasso;
 import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.User;
 
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -52,14 +47,9 @@ public class DrawerFragment extends Fragment implements Observer{
 	private IDrawerListItem mDrawerListItemListener;
 	private boolean isRegistered = false;
 	//
-//	protected ImageLoader mImageLoader;
-//	private AnimateFirstDisplayListener mAFDListener;
-	//
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		mImageLoader = ImageLoader.getInstance();
-//		mAFDListener = new AnimateFirstDisplayListener();
 	}
 	
 	@Override
@@ -134,11 +124,6 @@ public class DrawerFragment extends Fragment implements Observer{
 			if (lUserInfo != null){
 				if (lUserInfo.profileImage != null && lUserInfo.profileImage.length() > 0){
 					Picasso.with(getActivity()).load(lUserInfo.profileImage).into(mIVUserGravatar);
-//					if (MemoryCacheUtils.findCachedBitmapsForImageUri(lUserInfo.profileImage, ImageLoader.getInstance().getMemoryCache()).size() > 0){
-//						mIVUserGravatar.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(lUserInfo.profileImage, ImageLoader.getInstance().getMemoryCache()).get(0));
-//					}else{
-//						mImageLoader.displayImage(lUserInfo.profileImage, mIVUserGravatar, mAFDListener);
-//					}
 				}
 				mTVUserName.setText(lUserInfo.displayName);
 				String strRep = String.format(getString(R.string.SEUserRep_fmt), NumberFormat.getNumberInstance(Locale.US).format(lUserInfo.reputation));
@@ -158,6 +143,5 @@ public class DrawerFragment extends Fragment implements Observer{
 				mTVUserBadgeBronze.setText(String.valueOf(nwUserInfo.badges.bronze));
 			}
 		}
-		//mTVUserName.setText(text)
 	}
 }
