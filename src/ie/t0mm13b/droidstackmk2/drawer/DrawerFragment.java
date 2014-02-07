@@ -123,7 +123,11 @@ public class DrawerFragment extends Fragment implements Observer{
 			User lUserInfo = (User)data;
 			if (lUserInfo != null){
 				if (lUserInfo.profileImage != null && lUserInfo.profileImage.length() > 0){
-					Picasso.with(getActivity()).load(lUserInfo.profileImage).into(mIVUserGravatar);
+					Picasso.with(getActivity())
+						.load(lUserInfo.profileImage)
+						.resize(96, 96)
+						.centerInside()
+						.into(mIVUserGravatar);
 				}
 				mTVUserName.setText(lUserInfo.displayName);
 				String strRep = String.format(getString(R.string.SEUserRep_fmt), NumberFormat.getNumberInstance(Locale.US).format(lUserInfo.reputation));

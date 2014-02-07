@@ -58,7 +58,10 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		mButtonSubmit = (Button)dudlg.findViewById(R.id.btnDrawrUsrPickrSubmit);
 		if (dre != null){
 			mTVSiteName.setText(dre.getDrawerText());
-			Picasso.with(getActivity()).load(dre.getDrawerIcon()).into(mIVSiteLogo);
+			Picasso.with(getActivity())
+				.load(dre.getDrawerIcon())
+				.resize(96, 96)
+				.into(mIVSiteLogo);
 		}
 		mButtonSubmit.setOnClickListener(new OnClickListener(){
 

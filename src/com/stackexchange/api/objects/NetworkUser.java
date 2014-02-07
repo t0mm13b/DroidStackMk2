@@ -147,7 +147,8 @@ public class NetworkUser implements Parcelable{
 		dest.writeString(siteName);
 		dest.writeString(siteUrl);
 		dest.writeInt(userId);
-		dest.writeInt(userType.ordinal());
+		// Beware - userType may end up as null as its optional!
+		dest.writeInt((userType == null) ? -1 : userType.ordinal());
 	}
 	
 	private void readFromParcel(Parcel src){
@@ -161,7 +162,11 @@ public class NetworkUser implements Parcelable{
 		siteName = src.readString();
 		siteUrl = src.readString();
 		userId = src.readInt();
-		userType = UserType.values()[src.readInt()];
+		/***
+		 * Beware - the enum userType may have ended up as null. see the above writeToParcel!
+		 */
+		int ordVal = src.readInt();
+		userType = ((ordVal == -1) ? UserType.Unknown : UserType.values()[ordVal]);
 	}
 	public static final Parcelable.Creator<NetworkUser> CREATOR = new Parcelable.Creator<NetworkUser>() {
 
