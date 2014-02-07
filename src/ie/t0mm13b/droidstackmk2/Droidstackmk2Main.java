@@ -10,8 +10,11 @@ import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Stack;
@@ -354,6 +357,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 					@Override
 					public void success(CommonSEWrapper<NetworkUser> argCSEWrapper, Response argResponse) {
 						DrawerRowEntry newDRE = null;
+						List<DrawerRowEntry> dreList = new ArrayList<DrawerRowEntry>();
 						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() > 0){
 							mFragmentDrawer.getDrawerAdapter().clearAll();
 							for (NetworkUser nw : argCSEWrapper.itemsList){
@@ -368,16 +372,22 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 												assocSite.apiSiteParameter);
 										dreAssoc.setSiteInfo(assocSite);
 										dreAssoc.setNetworkUserInfo(nw);
+										dreList.add(dreAssoc); // Add to temporary list!
 										if (dre.equals(dreAssoc)){
 											// Yup! Longpressed on row matches this associated newly recreated entry, which will have the correct
 											// rep points etc
 											Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) - Found the intended target!");
 											newDRE = dreAssoc;
 										}
-										mFragmentDrawer.getDrawerAdapter().add(dreAssoc);										
 									}else{
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite is null! nw = " + nw.toString());
 									}
+								}
+							}
+							if (dreList.size() > 0){
+								Collections.sort(dreList, new DREComparator()); // Sort by reputation!
+								for (DrawerRowEntry dre : dreList){
+									mFragmentDrawer.getDrawerAdapter().add(dre);
 								}
 							}
 							mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();							
@@ -599,5 +609,18 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			setChanged();
 			notifyObservers(getNetworkUser());
 		}
+	}
+	class DREComparator implements Comparator<DrawerRowEntry>{
+
+		@Override
+		public int compare(DrawerRowEntry lhs, DrawerRowEntry rhs) {
+			NetworkUser nwLeft = lhs.getNetworkUserInfo();
+			NetworkUser nwRight = rhs.getNetworkUserInfo();
+			if (nwLeft != null && nwRight != null){
+				return nwRight.reputation - nwLeft.reputation;
+			}
+			return 0;
+		}
+		
 	}
 }
