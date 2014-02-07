@@ -2,6 +2,7 @@ package ie.t0mm13b.droidstackmk2.ui;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.squareup.picasso.Picasso;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,8 +28,8 @@ import ie.t0mm13b.droidstackmk2.helpers.Utils.AnimateFirstDisplayListener;
 public class SEFragmentGeneric extends BaseFragment{
 	private static final String TAG = "SEFragmentGeneric";
 	private ImageView ivLogo;
-	protected ImageLoader mImageLoader;
-	private AnimateFirstDisplayListener mAFDListener = new AnimateFirstDisplayListener();
+//	protected ImageLoader mImageLoader;
+//	private AnimateFirstDisplayListener mAFDListener = new AnimateFirstDisplayListener();
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
 	
@@ -62,11 +63,12 @@ public class SEFragmentGeneric extends BaseFragment{
         ivLogo = (ImageView)rootView.findViewById(R.id.ivSELogo);
         //
         if (mDrawerEntry != null){
-			if (MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).size() > 0){
-				ivLogo.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).get(0));
-			}else{
-				mImageLoader.displayImage(mDrawerEntry.getDrawerIcon(), ivLogo, mAFDListener);
-			}
+        	Picasso.with(getActivity()).load(mDrawerEntry.getDrawerIcon()).into(ivLogo);
+//			if (MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).size() > 0){
+//				ivLogo.setImageBitmap(MemoryCacheUtils.findCachedBitmapsForImageUri(mDrawerEntry.getDrawerIcon(), ImageLoader.getInstance().getMemoryCache()).get(0));
+//			}else{
+//				mImageLoader.displayImage(mDrawerEntry.getDrawerIcon(), ivLogo, mAFDListener);
+//			}
         }
         //
         return rootView;
