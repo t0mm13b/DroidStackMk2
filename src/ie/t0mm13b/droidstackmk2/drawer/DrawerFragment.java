@@ -10,6 +10,9 @@ import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.User;
 
 import ie.t0mm13b.droidstackmk2.R;
+import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
+import ie.t0mm13b.droidstackmk2.events.DrawerItemLongClickEvent;
+import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -73,10 +76,11 @@ public class DrawerFragment extends Fragment implements Observer{
 			@Override
 			public boolean onItemLongClick(AdapterView<?> argAdapter, View argView,	int argPosition, long argId) {
 				Utils.LogIt(TAG, String.format("mDrawerList::onItemLongClick(...) - position = %d", argPosition));
-				// Prompt for user account info then, find associated accounts and re-trim the list in the drawer...
-				if (mDrawerListItemListener != null){
-					mDrawerListItemListener.cbObtainUserId(argPosition, mDrawerAdapter.getItem(argPosition));
-				}
+				EventBusProvider.getInstance().post(new DrawerItemLongClickEvent(argPosition, mDrawerAdapter.getItem(argPosition)));
+//				// Prompt for user account info then, find associated accounts and re-trim the list in the drawer...
+//				if (mDrawerListItemListener != null){
+//					mDrawerListItemListener.cbObtainUserId(argPosition, mDrawerAdapter.getItem(argPosition));
+//				}
 				return true;
 			}
 			
@@ -85,9 +89,10 @@ public class DrawerFragment extends Fragment implements Observer{
 
 			@Override
 			public void onItemClick(AdapterView<?> argViewAdapter, View argView, int argPosition, long argId) {
-				if (mDrawerListItemListener != null){
-					mDrawerListItemListener.cbDrawerListItemClick(argPosition, mDrawerAdapter.getItem(argPosition));
-				}
+				EventBusProvider.getInstance().post(new DrawerItemClickEvent(argPosition, mDrawerAdapter.getItem(argPosition)));
+//				if (mDrawerListItemListener != null){
+//					mDrawerListItemListener.cbDrawerListItemClick(argPosition, mDrawerAdapter.getItem(argPosition));
+//				}
 			}
 			
 		});
@@ -96,12 +101,12 @@ public class DrawerFragment extends Fragment implements Observer{
         return rootView;
 	}
 	
-	public void registerListener(IDrawerListItem drawerListItem){
-		if (!isRegistered){
-			mDrawerListItemListener = drawerListItem;
-			isRegistered = true;
-		}
-	}
+//	public void registerListener(IDrawerListItem drawerListItem){
+//		if (!isRegistered){
+//			mDrawerListItemListener = drawerListItem;
+//			isRegistered = true;
+//		}
+//	}
 	
 	/***
 	 * Get the Drawer's Adapter
@@ -111,9 +116,9 @@ public class DrawerFragment extends Fragment implements Observer{
 	public synchronized DrawerArrayAdapter getDrawerAdapter(){
 		return mDrawerAdapter;
 	}
-	public boolean isListenerRegistered(){
-		return isRegistered;
-	}
+//	public boolean isListenerRegistered(){
+//		return isRegistered;
+//	}
 
 	@Override
 	public void update(Observable observable, Object data) {

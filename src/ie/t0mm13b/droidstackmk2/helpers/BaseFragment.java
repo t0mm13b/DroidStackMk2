@@ -3,6 +3,7 @@
  */
 package ie.t0mm13b.droidstackmk2.helpers;
 
+import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
 import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -48,26 +49,10 @@ public class BaseFragment extends Fragment {
 			getFragmentManager().popBackStack();
 			// make sure transactions are finished before reading backstack count
 			getFragmentManager().executePendingTransactions();
-			/***
-			 * Call the {@link IFragmentNotify#cbFragmentFinished} which gets caught by the class implementer.
-			 */
-			if (mFragmentNotify != null){
-				mFragmentNotify.cbFragmentFinished();
-			}
+			EventBusProvider.getInstance().post(new FragmentFinishedEvent());
+
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-	
-	/***
-	 * Register the class implementer of the interface {@link IFragmentNotify}
-	 * 
-	 * @param fragNotify
-	 */
-	public void registerFragmentNotify(IFragmentNotify fragNotify){
-		mFragmentNotify = fragNotify;
-	}
-	public void unregisterFragmentNotify(){
-		mFragmentNotify = null;
 	}
 }
