@@ -7,11 +7,11 @@
 		android:layout_width="match_parent" android:layout_height="wrap_content">
 		<ImageView android:id="@+id/ivDrwrSelectdSite"
 			android:layout_width="48dp" android:layout_height="48dp"
-			android:padding="15dp" android:src="@drawable/ic_stub" />
+			android:padding="5dp" android:src="@drawable/ic_stub" />
 		<TextView android:id="@+id/tvDrawrUsrPickrSelectdSite"
 			android:layout_width="match_parent" android:layout_height="wrap_content"
 			android:layout_toRightOf="@+id/ivDrwrSelectdSite"
-			android:layout_centerVertical="true" android:text="Selected Site"
+			android:layout_centerVertical="true" android:text="@string/SEUserPickerDlgTitle_default"
 			android:textAppearance="?android:attr/textAppearanceLarge" />
 	</RelativeLayout>
 	<RelativeLayout android:id="@+id/relDrawrUsrPickrBody"
@@ -19,13 +19,12 @@
 		android:layout_below="@+id/relDrawrUsrPickrHeader">
 		<TextView android:id="@+id/tvDrawrUsrPickrSiteHint"
 			android:layout_width="match_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@+id/ivDrwrSelectdSite"
-			android:text="Please enter the numeric user id indicating your appropriate site's account"
+			android:text="@string/SEUserPickerDlgText_default"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_margin="10dp" />
 		<EditText android:id="@+id/etDrawrUsrPickrAccNbr"
 			android:layout_width="match_parent" android:layout_height="wrap_content"
-			android:layout_below="@+id/tvDrawrUsrPickrSiteHint" android:hint="StackExchange Numeric Id"
+			android:layout_below="@+id/tvDrawrUsrPickrSiteHint" android:hint="@string/SEUserPickerDlgUserIdHint"
 			android:inputType="number" android:maxLength="8" android:padding="5dp"
 			android:layout_margin="25dp">
 			<requestFocus />
@@ -35,7 +34,7 @@
 		android:layout_width="match_parent" android:layout_height="wrap_content"
 		android:layout_below="@+id/relDrawrUsrPickrBody">
 		<Button android:id="@+id/btnDrawrUsrPickrSubmit" android:layout_width="match_parent"
-			android:layout_height="wrap_content" android:text="Submit"
+			android:layout_height="wrap_content" android:text="@string/SEUserPickerDlgButtonSubmit"
 			android:layout_margin="5dp" />
 	</RelativeLayout>
 </RelativeLayout>

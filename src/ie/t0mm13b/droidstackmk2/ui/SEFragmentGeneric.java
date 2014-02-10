@@ -1,5 +1,8 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.squareup.picasso.Picasso;
 
 import android.app.Activity;
@@ -21,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
+import ie.t0mm13b.droidstackmk2.helpers.ABTabsAdapter;
 import ie.t0mm13b.droidstackmk2.helpers.BaseFragment;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 
@@ -37,8 +41,9 @@ public class SEFragmentGeneric extends BaseFragment{
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
 	private ViewPager mViewPager;
-	private VPSEGA  mSEViewPagerAdapter;
+//	private VPSEGA  mSEViewPagerAdapter;
 	private ActionBar mSEFragActionBar;
+	private ABTabsAdapter mActionBarTabVPAdapter;
 	
 	public static SEFragmentGeneric newInstance(int position, DrawerRowEntry dre) {
 		SEFragmentGeneric frag = new SEFragmentGeneric();
@@ -52,6 +57,12 @@ public class SEFragmentGeneric extends BaseFragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setHasOptionsMenu(true);
+        //
+        mSEFragActionBar = getActionBar();
+        if (mSEFragActionBar != null){
+        	mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        }
+		//
         Bundle args = getArguments();
         if (args != null){
 	        if (args.containsKey(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_ITEM_KEY)){
@@ -67,31 +78,25 @@ public class SEFragmentGeneric extends BaseFragment{
 	@Override
 	public void onAttach(Activity activity){
 		super.onAttach(activity);
-		mSEFragActionBar = getActionBar();
-		mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		
 	}
 	
 	@Override
 	public void onDetach(){
 		super.onDetach();
-		mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		if (mActionBarTabVPAdapter != null) mActionBarTabVPAdapter.clearAll();
+		if (mSEFragActionBar != null) mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 	}
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generic, container, false);
-//        ivLogo = (ImageView)rootView.findViewById(R.id.ivSELogo);
         mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
         //
         if (mDrawerEntry != null){
-        	mSEViewPagerAdapter = new VPSEGA(getChildFragmentManager());
-        	
-        	mViewPager.setAdapter(mSEViewPagerAdapter);
-
-//        	Picasso.with(getActivity())
-//        	.load(mDrawerEntry.getDrawerIcon())
-//        	.resize(96, 96)
-//        	.into(ivLogo);
+            mActionBarTabVPAdapter = new ABTabsAdapter(getChildFragmentManager(), mSEFragActionBar, mViewPager);
+            mActionBarTabVPAdapter.addTab(mSEFragActionBar.newTab().setText("Questions"), "Questions", SEFragment_Questions.class, new Bundle());
+            mActionBarTabVPAdapter.addTab(mSEFragActionBar.newTab().setText("Featured Questions"), "FQuestions", SEFragment_FeaturedQuestions.class, new Bundle());
         }
         //
         return rootView;
@@ -111,24 +116,25 @@ public class SEFragmentGeneric extends BaseFragment{
         // }
         return super.onOptionsItemSelected(item);
     }
-    class VPSEGA extends FragmentPagerAdapter{
-    	private static final String TAG = "VPSEGA";
-		public VPSEGA(FragmentManager fm) {
-			super(fm);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public Fragment getItem(int argPosition) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getCount() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    	
-    }
+//    class VPSEGA extends FragmentPagerAdapter{
+//    	private static final String TAG = "VPSEGA";
+//    	private List<Fragment> mFragList = new ArrayList<Fragment>();
+//    	
+//		public VPSEGA(FragmentManager fm) {
+//			super(fm);
+//			mFragList.add(arg0);
+//		}
+//
+//		@Override
+//		public Fragment getItem(int argPosition) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//
+//		@Override
+//		public int getCount() {
+//			return mFragList.size();
+//		}
+//    	
+//    }
 }

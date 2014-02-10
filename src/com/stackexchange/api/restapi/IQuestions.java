@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.stackexchange.api.objects.Answer;
 import com.stackexchange.api.objects.Comment;
+import com.stackexchange.api.objects.CommonSEWrapper;
 import com.stackexchange.api.objects.Question;
 import com.stackexchange.api.objects.QuestionTimeline;
 import com.stackexchange.api.objects.Enums.SortOrder;
@@ -333,7 +334,7 @@ public interface IQuestions {
 			@Query("min") String minDate,
 			@Query("max") String maxDate,
 			@Query("sort") SortType typeOfSort,
-			Callback<List<Question>> cbFeaturedQuestions);
+			Callback<CommonSEWrapper<Question>> cbFeaturedQuestions);
 	
 	/***
 	 * Returns questions the site considers to be unanswered.

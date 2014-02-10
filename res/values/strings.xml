@@ -14,21 +14,6 @@
 	<string name="app_label">Search</string>
 	<string name="search_hint">Search StackExchange Sites</string>
 	<!-- Drawer related -->
-	<string-array name="droidstack_drawer_titles_array">
-		<item>StackOverflow</item>
-		<item>Career</item>
-		<item>ServerFault</item>
-		<item>SuperUser</item>
-	</string-array>
-	<!-- Entries below are actual names of icons used that will appear in front 
-		of each entry in above! if out of sync, illegalstateexception will be thrown 
-		- dowtcha boi! :P -->
-	<string-array name="droidstack_drawer_icons_array">
-		<item>ic_drawer_so</item>
-		<item>ic_drawer_careers</item>
-		<item>ic_drawer_sf</item>
-		<item>ic_drawer_su</item>
-	</string-array>
 	<string name="drawer_sample_txt">Drawer Sample Text</string>
 	<string name="emptyDrawerList">No Site(s) found.</string>
 	<string name="SEUserId_default">SE User ID</string>
@@ -36,4 +21,9 @@
 	<string name="SEUserRep_default">Reputation: 99999</string>
 	<string name="SEUserBadge_default">Badges:</string>
 	<string name="SEUserBadgeCount_default">99</string>
+	<!-- SE User Dialog fragment -->
+	<string name="SEUserPickerDlgTitle_default">Selected Site</string>
+	<string name="SEUserPickerDlgText_default">Please enter the numeric user id indicating your appropriate site&quot;s account</string>
+	<string name="SEUserPickerDlgUserIdHint">StackExchange User Id</string>
+	<string name="SEUserPickerDlgButtonSubmit">Submit</string>
 </resources>

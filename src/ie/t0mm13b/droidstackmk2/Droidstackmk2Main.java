@@ -447,7 +447,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	 */
 	@Override
 	public void cbFragmentFinished() {
-		// TODO Auto-generated method stub
 		Utils.LogIt(TAG, "cbFragmentFinished");
 //		dumpStack();
 		try{
