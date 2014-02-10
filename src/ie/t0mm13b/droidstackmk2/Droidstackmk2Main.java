@@ -3,10 +3,9 @@ package ie.t0mm13b.droidstackmk2;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerFragment;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment;
-import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment.IDrawerUserPickerDialog;
-import ie.t0mm13b.droidstackmk2.drawer.IDrawerListItem;
 import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
 import ie.t0mm13b.droidstackmk2.events.DrawerItemLongClickEvent;
+import ie.t0mm13b.droidstackmk2.events.DrawerUserDialogEvent;
 import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
@@ -74,7 +73,7 @@ import android.widget.Toast;
  * @see IDrawerListItem
  * @see IFragmentNotify
  */
-public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerListItem, IFragmentNotify, OnQueryTextListener*/{
+public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTextListener*/{
 	private static final String TAG = "Droidstackmk2Main";
 	//http://stackapps.com/apps/oauth/view/2563
 	private static final String SECLIENTIDP_KEY = "client_id";
@@ -123,9 +122,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerLis
 		mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
 		if (mFragmentDrawer != null){
 			Log.d(TAG, "Found our fragment!");
-//			if (!mFragmentDrawer.isListenerRegistered()){
-//				mFragmentDrawer.registerListener(this);
-//			}
 			mUserInfo.addObserver(mFragmentDrawer);
 		}
 		//
@@ -270,7 +266,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerLis
 
 					@Override
 					public void onBackStackChanged() {
-						// TODO Auto-generated method stub
 						adjustActionBarToggle();
 					}
 
@@ -302,124 +297,57 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerLis
 	}
 	
 	@Subscribe
+	public void onDrawerUserDialog(DrawerUserDialogEvent dude){
+		final String seUserId = dude.getStackExchangeUserId();
+		final DrawerRowEntry dre = dude.getDrawerItem();
+		final int position = dude.getDrawerPosition();
+		// Now we have the account number....
+		Utils.LogIt(TAG, String.format("onDrawerUserDialog(...) - seUserId = %s", seUserId));
+		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
+
+		// Ok, now the user id is picked and returned back, we need to pull that in!
+		final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
+		users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
+				"", 
+				"", 
+				"", 
+				"", 
+				SortOrder.Desc, 
+				"", 
+				"", 
+				SortType.Reputation,
+				new Callback<CommonSEWrapper<User>>(){
+
+					@Override
+					public void failure(RetrofitError arg0) {
+						MenuItemCompat.setActionView(mOptionsRefresh, null);
+						Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
+					}
+
+					@Override
+					public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
+						Utils.LogIt(TAG,  "onDrawerUserDialog::success(...) - " + argCSEWrapper.toString());
+						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
+							User selectdUser = argCSEWrapper.itemsList.get(0);
+							Utils.LogIt(TAG,  "onDrawerUserDialog(...)::success(...) - User = " + selectdUser.toString());
+							mUserInfo.setUserInfo(selectdUser);
+							getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
+						}
+						MenuItemCompat.setActionView(mOptionsRefresh, null);	
+					}
+			
+		});
+	}
+	
+	@Subscribe
 	public void onDrawerItemLongClicked(DrawerItemLongClickEvent dilce){
 		final DrawerRowEntry dre = dilce.getDREntry();
 		final int position = dilce.getDREntryPosition();
 		Utils.LogIt(TAG, String.format("onDrawerItemLongClicked: dre = " + dre.toString()));
 		// Check against the shared prefs for that site info?
-		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre);
-		dlg.setIDrawerUserPickerDialog(new IDrawerUserPickerDialog(){
-
-			@Override
-			public void cbSelectedSEAccount(String seUserId) {
-				// TODO Auto-generated method stub
-				// Now we have the account number....
-				Utils.LogIt(TAG, String.format("dlg::cbSelectedSEAccount(...) - seUserId = %s", seUserId));
-				MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
-
-				// Ok, now the user id is picked and returned back, we need to pull that in!
-				final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
-				users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
-						"", 
-						"", 
-						"", 
-						"", 
-						SortOrder.Desc, 
-						"", 
-						"", 
-						SortType.Reputation,
-						new Callback<CommonSEWrapper<User>>(){
-
-							@Override
-							public void failure(RetrofitError arg0) {
-								MenuItemCompat.setActionView(mOptionsRefresh, null);
-								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
-							}
-
-							@Override
-							public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
-								Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - " + argCSEWrapper.toString());
-								if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
-									User selectdUser = argCSEWrapper.itemsList.get(0);
-									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
-									mUserInfo.setUserInfo(selectdUser);
-									getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
-								}
-								MenuItemCompat.setActionView(mOptionsRefresh, null);	
-							}
-					
-				});
-			}
-			
-		});
+		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre, position);
 		dlg.show(getSupportFragmentManager(), "userPickrDialog");
 	}
-
-	/***
-	 * Catch the interface callback via implementing {@link IDrawerListItem} so that we can launch the respective fragment based on
-	 * what was on the Navigation Panel's listview item that was tapped.
-	 */
-//	@Override
-//	public void cbDrawerListItemClick(int position, DrawerRowEntry dre) {
-//		Utils.LogIt(TAG, String.format("cbDrawerListItemClick(...) - position = %d; actionBarText = %s", position, dre.getDrawerText()));
-//		selectItem(position, dre);
-//	}
-
-	/***
-	 * Catch the interface callback so that we can launch the dialog fragment to prompt user to insert their appropriately selected
-	 * StackExchange site in order to obtain their flair etc and to pull in associated accounts if necessary.
-	 */
-//	@Override
-//	public void cbObtainUserId(final int position, final DrawerRowEntry dre) {
-//		Utils.LogIt(TAG, String.format("cbObtainUserId: dre = " + dre.toString()));
-//		// Check against the shared prefs for that site info?
-//		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre);
-//		dlg.setIDrawerUserPickerDialog(new IDrawerUserPickerDialog(){
-//
-//			@Override
-//			public void cbSelectedSEAccount(String seUserId) {
-//				// TODO Auto-generated method stub
-//				// Now we have the account number....
-//				Utils.LogIt(TAG, String.format("dlg::cbSelectedSEAccount(...) - seUserId = %s", seUserId));
-//				MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
-//
-//				// Ok, now the user id is picked and returned back, we need to pull that in!
-//				final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
-//				users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
-//						"", 
-//						"", 
-//						"", 
-//						"", 
-//						SortOrder.Desc, 
-//						"", 
-//						"", 
-//						SortType.Reputation,
-//						new Callback<CommonSEWrapper<User>>(){
-//
-//							@Override
-//							public void failure(RetrofitError arg0) {
-//								MenuItemCompat.setActionView(mOptionsRefresh, null);
-//								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
-//							}
-//
-//							@Override
-//							public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
-//								Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - " + argCSEWrapper.toString());
-//								if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
-//									User selectdUser = argCSEWrapper.itemsList.get(0);
-//									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
-//									mUserInfo.setUserInfo(selectdUser);
-//									getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
-//								}
-//								MenuItemCompat.setActionView(mOptionsRefresh, null);	
-//							}
-//					
-//				});
-//			}
-//			
-//		});
-//		dlg.show(getSupportFragmentManager(), "userPickrDialog");
-//	}	
 	
 	private void getAssociatedSites(final IUsers userAPI, final User userInfo, final int position, final DrawerRowEntry dre){
 		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
@@ -431,7 +359,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerLis
 
 					@Override
 					public void failure(RetrofitError argRetrofitError) {
-						// TODO Auto-generated method stub
 						MenuItemCompat.setActionView(mOptionsRefresh, null);
 						Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getAssociatedAccountsByAccountId(...) failure!", Toast.LENGTH_SHORT);
 					}
@@ -493,9 +420,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements IDrawerLis
 		//
 		frag = SEFragmentGeneric.newInstance(position, dre);
 		if (frag != null) {
-			
-//			((SEFragmentGeneric)frag).registerFragmentNotify(this);
-
 			// Insert the fragment by replacing any existing fragment
 			FragmentTransaction transaction = mFragmentManager.beginTransaction();
 			transaction.replace(R.id.content_frame, frag);
