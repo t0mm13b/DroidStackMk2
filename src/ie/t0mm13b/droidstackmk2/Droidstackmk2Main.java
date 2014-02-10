@@ -2,15 +2,12 @@ package ie.t0mm13b.droidstackmk2;
 
 import ie.t0mm13b.droidstackmk2.drawer.DrawerFragment;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
-import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment;
 import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
-import ie.t0mm13b.droidstackmk2.events.DrawerItemLongClickEvent;
-import ie.t0mm13b.droidstackmk2.events.DrawerUserDialogEvent;
+import ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent;
 import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +101,8 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
 	//
 	private Map<String, Site> mSiteMap = new HashMap<String, Site>();
+	//
+	private boolean mEventBusIsRegistered = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +117,7 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		this.initDrawer();
 		//
 		EventBusProvider.getInstance().register(this);
+		mEventBusIsRegistered = true;
 		//
 		mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
 		if (mFragmentDrawer != null){
@@ -206,15 +206,21 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	}
 	
 	@Override
-	public void onPause(){
-		EventBusProvider.getInstance().unregister(this);
+	protected void onPause(){
 		super.onPause();
+		if (mEventBusIsRegistered){
+			EventBusProvider.getInstance().unregister(this);
+			mEventBusIsRegistered = false;
+		}
 	}
 	
 	@Override
-	public void onResume(){
+	protected void onResume(){
 		super.onResume();
-		EventBusProvider.getInstance().register(this);
+		if (!mEventBusIsRegistered){
+			EventBusProvider.getInstance().register(this);
+			mEventBusIsRegistered = true;
+		}
 	}
 	
 	private void handleDrawerOpenClose() {
@@ -286,23 +292,50 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		if (showDrawerToggle) mActionBar.setTitle(getString(R.string.default_view_title));
 	}
 
+	/***
+	 * Event handler when the item in Drawer is tapped
+	 * @param event
+	 */
 	@Subscribe
-	public void onDrawerItemClicked(DrawerItemClickEvent dice){
-		final DrawerRowEntry dre = dice.getDREntry();
-		final int position = dice.getDREntryPosition();
+	public void onDrawerItemClicked(DrawerItemClickEvent event){
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerFrameLayout);
+		if (drawerOpen){
+			Utils.LogIt(TAG, "onDrawerItemClicked(...) - drawer *IS* open!");
+			getFragmentManager().popBackStack();
+			// make sure transactions are finished before reading backstack count
+			getFragmentManager().executePendingTransactions();
+			onFragmentFinished(new FragmentFinishedEvent());
+		}
+		final DrawerRowEntry dre = event.getDREntry();
+		final int position = event.getDREntryPosition();
 		Utils.LogIt(TAG, String.format("onDrawerItemClicked(...) - position = %d; actionBarText = %s", 
 				position, 
 				dre.getDrawerText()));
 		selectItem(position, dre);		
 	}
 	
+	/***
+	 * Pulls in the user id's account from a site that was long-pressed within the drawer.
+	 * 
+	 * Event receiver for when {@link ie.t0mm13b.droidstackmk2.drawer.StackExchangeUserDialog} is either cancelled 
+	 * or user id submitted, {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent#getIsCancelled()} or
+	 * {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent#getStackExchangeUserId()}
+	 * 
+	 * @param event
+	 * @see {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent}
+	 * @see {@link getAssociatedSites()}
+	 */
 	@Subscribe
-	public void onDrawerUserDialog(DrawerUserDialogEvent dude){
-		final String seUserId = dude.getStackExchangeUserId();
-		final DrawerRowEntry dre = dude.getDrawerItem();
-		final int position = dude.getDrawerPosition();
+	public void onStackExchangeUserDialog(StackExchangeUserDialogEvent event){
+		if (event.getIsCancelled()){
+			Utils.LogIt(TAG, String.format("onStackExchangeUserDialog(...) - User cancelled"));
+			return;
+		}
+		final String seUserId = event.getStackExchangeUserId();
+		final DrawerRowEntry dre = event.getDrawerItem();
+		final int position = event.getDrawerPosition();
 		// Now we have the account number....
-		Utils.LogIt(TAG, String.format("onDrawerUserDialog(...) - seUserId = %s", seUserId));
+		Utils.LogIt(TAG, String.format("onStackExchangeUserDialog(...) - seUserId = %s", seUserId));
 		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
 
 		// Ok, now the user id is picked and returned back, we need to pull that in!
@@ -326,10 +359,10 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 
 					@Override
 					public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
-						Utils.LogIt(TAG,  "onDrawerUserDialog::success(...) - " + argCSEWrapper.toString());
+						Utils.LogIt(TAG,  "onStackExchangeUserDialog::success(...) - " + argCSEWrapper.toString());
 						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
 							User selectdUser = argCSEWrapper.itemsList.get(0);
-							Utils.LogIt(TAG,  "onDrawerUserDialog(...)::success(...) - User = " + selectdUser.toString());
+							Utils.LogIt(TAG,  "onStackExchangeUserDialog(...)::success(...) - User = " + selectdUser.toString());
 							mUserInfo.setUserInfo(selectdUser);
 							getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
 						}
@@ -338,17 +371,16 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			
 		});
 	}
-	
-	@Subscribe
-	public void onDrawerItemLongClicked(DrawerItemLongClickEvent dilce){
-		final DrawerRowEntry dre = dilce.getDREntry();
-		final int position = dilce.getDREntryPosition();
-		Utils.LogIt(TAG, String.format("onDrawerItemLongClicked: dre = " + dre.toString()));
-		// Check against the shared prefs for that site info?
-		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre, position);
-		dlg.show(getSupportFragmentManager(), "userPickrDialog");
-	}
-	
+
+	/***
+	 * pulls in teh associated accounts across the StackExchange network and trims the initial excess sites from teh drawer
+	 * and re-sorts them based on order of rep points.
+	 * 
+	 * @param userAPI
+	 * @param userInfo
+	 * @param position
+	 * @param dre
+	 */
 	private void getAssociatedSites(final IUsers userAPI, final User userInfo, final int position, final DrawerRowEntry dre){
 		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
 		userAPI.getAssociatedAccountsByAccountId(
@@ -447,8 +479,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		Utils.LogIt(TAG, "dumpStack *** LEAVE ***");
 	}
 
+	/***
+	 * Event raised when the fragment has the chevron tapped to up the parent activity.
+	 * 
+	 * @param event
+	 */
 	@Subscribe
-	public void onFragmentFinished(FragmentFinishedEvent ffe){
+	public void onFragmentFinished(FragmentFinishedEvent event){
 		Utils.LogIt(TAG, "onFragmentFinished");
 		try{
 			mStackDRE.pop();

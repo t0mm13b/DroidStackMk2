@@ -13,6 +13,7 @@ import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
 import ie.t0mm13b.droidstackmk2.events.DrawerItemLongClickEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
+import ie.t0mm13b.droidstackmk2.helpers.RoundedTransformation;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -76,7 +77,12 @@ public class DrawerFragment extends Fragment implements Observer{
 			public boolean onItemLongClick(AdapterView<?> argAdapter, View argView,	int argPosition, long argId) {
 				Utils.LogIt(TAG, String.format("mDrawerList::onItemLongClick(...) - position = %d", argPosition));
 				// Prompt for user account info then, find associated accounts and re-trim the list in the drawer...
-				EventBusProvider.getInstance().post(new DrawerItemLongClickEvent(argPosition, mDrawerAdapter.getItem(argPosition)));
+				final DrawerRowEntry dre = mDrawerAdapter.getItem(argPosition);
+				final int position = argPosition;
+				Utils.LogIt(TAG, String.format("onDrawerItemLongClicked: dre = " + dre.toString()));
+				// Check against the shared prefs for that site info?
+				StackExchangeUserDialog dlg = StackExchangeUserDialog.newInstance(dre, position);
+				dlg.show(getActivity().getSupportFragmentManager(), "userPickrDialog");
 				return true;
 			}
 			
@@ -103,11 +109,17 @@ public class DrawerFragment extends Fragment implements Observer{
 		return mDrawerAdapter;
 	}
 
+	/***
+	 * A callback based on the Observable object in which, we then update our drawer to reflect it.
+	 * (When changes are made to an object that implements Observable and listener is added, this gets fired.)
+	 * Could do it another way, using the Otto's bus... 
+	 */
 	@Override
 	public void update(Observable observable, Object data) {
 		if (data != null) Utils.LogIt(TAG, "update(...) data = " + data.toString());
 		// Here we update the user info in the fragment
 		if (data != null && data instanceof User){
+			RoundedTransformation rt = new RoundedTransformation(10, 1);
 			User lUserInfo = (User)data;
 			if (lUserInfo != null){
 				if (lUserInfo.profileImage != null && lUserInfo.profileImage.length() > 0){
@@ -115,6 +127,7 @@ public class DrawerFragment extends Fragment implements Observer{
 						.load(lUserInfo.profileImage)
 						.resize(96, 96)
 						.centerInside()
+						.transform(rt)
 						.into(mIVUserGravatar);
 				}
 				mTVUserName.setText(lUserInfo.displayName);

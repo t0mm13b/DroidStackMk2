@@ -4,7 +4,6 @@
 package ie.t0mm13b.droidstackmk2.helpers;
 
 import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -20,7 +19,6 @@ import android.view.MenuItem;
 public class BaseFragment extends Fragment {
 
 	private ActionBarActivity mActionBarActivity;
-	private IFragmentNotify mFragmentNotify;
 	private ActionBar mActionBar;
 	
 	@Override

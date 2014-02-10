@@ -2,16 +2,18 @@ package ie.t0mm13b.droidstackmk2.events;
 
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
 
-public class DrawerUserDialogEvent {
-	private static final String TAG = "DrawerUserDialogEvent";
+public class StackExchangeUserDialogEvent {
+	private static final String TAG = "StackExchangeUserDialogEvent";
 	private String mSEUserId;
 	private DrawerRowEntry mDrawerRowEntry;
 	private int mPosition;
+	private boolean mIsCancelled;
 	
-	public DrawerUserDialogEvent(String seUserId, DrawerRowEntry dre, int position){
+	public StackExchangeUserDialogEvent(String seUserId, DrawerRowEntry dre, int position, boolean isCancelled){
 		mSEUserId = seUserId;
 		mDrawerRowEntry = dre;
 		mPosition = position;
+		mIsCancelled = isCancelled;
 	}
 	
 	public String getStackExchangeUserId(){
@@ -26,18 +28,24 @@ public class DrawerUserDialogEvent {
 		return mPosition;
 	}
 	
+	public boolean getIsCancelled(){
+		return mIsCancelled;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DrawerUserDialogEvent [mSEUserId=");
+		builder.append("StackExchangeUserDialogEvent [mSEUserId=");
 		builder.append(mSEUserId);
 		builder.append(", mDrawerRowEntry=");
 		builder.append(mDrawerRowEntry);
 		builder.append(", mPosition=");
 		builder.append(mPosition);
+		builder.append(", mIsCancelled=");
+		builder.append(mIsCancelled);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -51,6 +59,7 @@ public class DrawerUserDialogEvent {
 		int result = 1;
 		result = prime * result
 				+ ((mDrawerRowEntry == null) ? 0 : mDrawerRowEntry.hashCode());
+		result = prime * result + (mIsCancelled ? 1231 : 1237);
 		result = prime * result + mPosition;
 		result = prime * result
 				+ ((mSEUserId == null) ? 0 : mSEUserId.hashCode());
@@ -63,11 +72,12 @@ public class DrawerUserDialogEvent {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) return false;
-		if (obj instanceof DrawerUserDialogEvent){
-			DrawerUserDialogEvent other = (DrawerUserDialogEvent) obj;
+		if (obj instanceof StackExchangeUserDialogEvent){
+			StackExchangeUserDialogEvent other = (StackExchangeUserDialogEvent) obj;
 			if (mSEUserId.equalsIgnoreCase(other.mSEUserId) &&
 					mPosition == other.getDrawerPosition() && 
-					mDrawerRowEntry.equals(other.getDrawerItem())) 
+					mDrawerRowEntry.equals(other.getDrawerItem()) &&
+					mIsCancelled == other.getIsCancelled()) 
 				return true;
 		}
 		return false;

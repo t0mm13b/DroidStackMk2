@@ -1,6 +1,7 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
 import ie.t0mm13b.droidstackmk2.R;
+import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -16,7 +17,7 @@ import android.view.ViewGroup;
  * @author t0mm13b
  *
  */
-public class SEFragment_Questions extends Fragment{
+public class SEFragment_Questions extends Fragment implements IFragmentLifecycle{
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -37,4 +38,17 @@ public class SEFragment_Questions extends Fragment{
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
+	@Override
+	public void onPauseFragment() {
+		// TODO Auto-generated method stub
+		// Save state here...
+	}
+
+	@Override
+	public void onResumeFragment() {
+		// TODO Auto-generated method stub
+		// Restore state here...
+		
+	}
 }

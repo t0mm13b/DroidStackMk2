@@ -1,13 +1,16 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
 import com.squareup.picasso.Picasso;
-
+import static butterknife.ButterKnife.findById;
 import ie.t0mm13b.droidstackmk2.R;
-import ie.t0mm13b.droidstackmk2.events.DrawerUserDialogEvent;
+import ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -17,7 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class DrawerUserDialogFragment extends DialogFragment{
+public class StackExchangeUserDialog extends DialogFragment{
 	
 	private static final String DUD_DRE_KEY = "DUD_DRE";
 	private static final String DUD_DRE_POS = "DUD_POS";
@@ -27,8 +30,8 @@ public class DrawerUserDialogFragment extends DialogFragment{
 	private EditText mEditSENumber;
 	private Button mButtonSubmit;
 	
-	public static DrawerUserDialogFragment newInstance(DrawerRowEntry dre, int position){
-		DrawerUserDialogFragment dudFrag = new DrawerUserDialogFragment();
+	public static StackExchangeUserDialog newInstance(DrawerRowEntry dre, int position){
+		StackExchangeUserDialog dudFrag = new StackExchangeUserDialog();
 		Bundle args = new Bundle();
 		args.putParcelable(DUD_DRE_KEY, dre);
 		args.putInt(DUD_DRE_POS, position);
@@ -36,9 +39,6 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		return dudFrag;
 	}
 	
-//	public void setIDrawerUserPickerDialog(IDrawerUserPickerDialog iDrawrUsrPickrDlg){
-//		mUserPickerDialog = iDrawrUsrPickrDlg;
-//	}
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstance){
 		Bundle args = getArguments();
@@ -54,6 +54,19 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		dudlg.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		dudlg.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		dudlg.setContentView(R.layout.drawer_userpicker_dlgfrag);
+		dudlg.setOnKeyListener(new OnKeyListener(){
+
+			@Override
+			public boolean onKey(DialogInterface argDlg, int argKeyCode, KeyEvent argKeyEvent) {
+				if (argKeyCode == KeyEvent.KEYCODE_BACK && argKeyEvent.getRepeatCount() == 0){
+					EventBusProvider.getInstance().post(new StackExchangeUserDialogEvent("", dre, position, true));
+					dismiss();
+					return true;
+				}
+				return false;
+			}
+			
+		});
 		//dudlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 		mTVSiteName = (TextView) dudlg.findViewById(R.id.tvDrawrUsrPickrSelectdSite);
 		mIVSiteLogo = (ImageView) dudlg.findViewById(R.id.ivDrwrSelectdSite);
@@ -70,7 +83,7 @@ public class DrawerUserDialogFragment extends DialogFragment{
 
 			@Override
 			public void onClick(View v) {
-				EventBusProvider.getInstance().post(new DrawerUserDialogEvent(mEditSENumber.getText().toString(), dre, position));
+				EventBusProvider.getInstance().post(new StackExchangeUserDialogEvent(mEditSENumber.getText().toString(), dre, position, false));
 				dismiss();
 			}
 			
@@ -78,4 +91,5 @@ public class DrawerUserDialogFragment extends DialogFragment{
 		//int args
 		return dudlg;
 	}
+	
 }

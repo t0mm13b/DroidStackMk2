@@ -1,6 +1,7 @@
 package ie.t0mm13b.droidstackmk2.helpers;
 
 import ie.t0mm13b.droidstackmk2.DroidStackMk2App;
+import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,9 +10,7 @@ import java.util.Map;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -19,8 +18,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 
 // http://stackoverflow.com/questions/9952555/actionbar-on-sub3-0-devices-implementing-actionbarsherlock-with-my-customized
-public class ABTabsAdapter extends FragmentStatePagerAdapter
-	implements android.support.v7.app.ActionBar.TabListener, ViewPager.OnPageChangeListener {
+public class ABTabsAdapter extends FragmentStatePagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 	private static final String TAG = "ABSTabsAdapter";
 	private final Context mContext;
 	private final ViewPager mViewPager;
@@ -28,7 +26,14 @@ public class ABTabsAdapter extends FragmentStatePagerAdapter
     private final Map<String, ABTabsAdapter.ABSTabInfo> mTabsMap = new HashMap<String, ABTabsAdapter.ABSTabInfo>();
     private final ActionBar mActionBar;
     private final FragmentManager mFragMgr;
+    private int mCurrentPagePosition = 0;
+    private int mCurrentTabPosition = 0;
     //
+    /***
+     * Helper class to hold the fragment's class, fragment, a tag identifier and text for tab.
+     * @author t0mm13b
+     *
+     */
     static final class ABSTabInfo {
         private final Class<?> clss;
         private final Bundle args;
@@ -58,7 +63,7 @@ public class ABTabsAdapter extends FragmentStatePagerAdapter
         	return mTab;
         }
     }
-	public ABTabsAdapter(FragmentManager fm, android.support.v7.app.ActionBar actionBar, ViewPager pager) {
+	public ABTabsAdapter(FragmentManager fm, ActionBar actionBar, ViewPager pager) {
 		super(fm);
 		mFragMgr = fm;
 		mContext = DroidStackMk2App.getAppContext();
@@ -101,9 +106,10 @@ public class ABTabsAdapter extends FragmentStatePagerAdapter
 		if (mListTabs != null && mListTabs.size() > 0){
 //			FragmentTransaction ft = mFragMgr.beginTransaction();
 			mFragMgr.getFragments().clear();
-			mActionBar.removeAllTabs();
 			mListTabs.clear();
+			mActionBar.removeAllTabs();
 			mTabsMap.clear();
+			notifyDataSetChanged();
 //			ft.commit();
 		}		
 	}
@@ -149,7 +155,15 @@ public class ABTabsAdapter extends FragmentStatePagerAdapter
     
     @Override
     public void onPageSelected(int position) {
+    	IFragmentLifecycle fragShow = (IFragmentLifecycle)getItem(position);
+    	fragShow.onResumeFragment();
+    	//
+    	IFragmentLifecycle fragHide = (IFragmentLifecycle)getItem(mCurrentPagePosition);
+    	fragHide.onPauseFragment();
+    	//
     	mActionBar.setSelectedNavigationItem(position);
+    	//
+    	mCurrentPagePosition = position;
     }
 
     @Override        
