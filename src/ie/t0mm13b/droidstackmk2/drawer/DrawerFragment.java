@@ -5,6 +5,9 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 import com.squareup.picasso.Picasso;
 import com.stackexchange.api.objects.NetworkUser;
 import com.stackexchange.api.objects.User;
@@ -37,15 +40,15 @@ import android.widget.TextView;
 public class DrawerFragment extends Fragment implements Observer{
 	private static final String TAG = "DrawerFragment";
 	//
-	private ImageView mIVUserGravatar;
-	private TextView mTVUserName;
-	private TextView mTVUserRepCount;
-	private TextView mTVUserBadgeGold;
-	private TextView mTVUserBadgeSilver;
-	private TextView mTVUserBadgeBronze;
+	@InjectView(R.id.ivUserGravatar) ImageView mIVUserGravatar;
+	@InjectView(R.id.tvUserInfoSEId) TextView mTVUserName;
+	@InjectView(R.id.tvUserInfoRep) TextView mTVUserRepCount;
+	@InjectView(R.id.tvUserInfoBadgesGold) TextView mTVUserBadgeGold;
+	@InjectView(R.id.tvUserInfoBadgesSilver) TextView mTVUserBadgeSilver;
+	@InjectView(R.id.tvUserInfoBadgesBronze) TextView mTVUserBadgeBronze;
 	//
-	private ListView mDrawerList;
-	private TextView mDrawerListEmpty;
+	@InjectView(R.id.lvDrawerItems) ListView mDrawerList;
+	@InjectView(R.id.emptyDrawerList) TextView mDrawerListEmpty;
 	//
 	private DrawerArrayAdapter mDrawerAdapter;
 	private boolean isRegistered = false;
@@ -59,15 +62,8 @@ public class DrawerFragment extends Fragment implements Observer{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.drawer_fragment, container, false);
         //
-        mIVUserGravatar = (ImageView) rootView.findViewById(R.id.ivUserGravatar);
-        mTVUserName = (TextView) rootView.findViewById(R.id.tvUserInfoSEId);
-        mTVUserRepCount = (TextView) rootView.findViewById(R.id.tvUserInfoRep);
-        mTVUserBadgeGold = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesGold);
-        mTVUserBadgeSilver = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesSilver);
-        mTVUserBadgeBronze = (TextView) rootView.findViewById(R.id.tvUserInfoBadgesBronze);
+        ButterKnife.inject(this, rootView);
         //
-        mDrawerList = (ListView) rootView.findViewById(R.id.lvDrawerItems);
-        mDrawerListEmpty = (TextView) rootView.findViewById(R.id.emptyDrawerList);
 		mDrawerAdapter = new DrawerArrayAdapter(this.getActivity().getApplicationContext());
 		mDrawerList.setEmptyView(mDrawerListEmpty);
 		//

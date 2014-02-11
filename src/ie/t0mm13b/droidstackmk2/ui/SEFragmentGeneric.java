@@ -1,27 +1,18 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.squareup.picasso.Picasso;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBar.TabListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
 import ie.t0mm13b.droidstackmk2.helpers.ABTabsAdapter;
@@ -37,11 +28,9 @@ import ie.t0mm13b.droidstackmk2.helpers.Utils;
  */
 public class SEFragmentGeneric extends BaseFragment{
 	private static final String TAG = "SEFragmentGeneric";
-	private ImageView ivLogo;
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
-	private ViewPager mViewPager;
-//	private VPSEGA  mSEViewPagerAdapter;
+	@InjectView(R.id.pager) ViewPager mViewPager;
 	private ActionBar mSEFragActionBar;
 	private ABTabsAdapter mActionBarTabVPAdapter;
 	
@@ -84,14 +73,22 @@ public class SEFragmentGeneric extends BaseFragment{
 	@Override
 	public void onDetach(){
 		super.onDetach();
+	}
+	
+	@Override
+	public void onDestroyView(){
+		Utils.LogIt(TAG, "onDestroyView(...)");
 		if (mActionBarTabVPAdapter != null) mActionBarTabVPAdapter.clearAll();
 		if (mSEFragActionBar != null) mSEFragActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		super.onDestroyView();
 	}
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generic, container, false);
-        mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
+//        mViewPager = (ViewPager) rootView.findViewById(R.id.pager);
+        //
+        ButterKnife.inject(this, rootView);
         //
         if (mDrawerEntry != null){
             mActionBarTabVPAdapter = new ABTabsAdapter(getChildFragmentManager(), mSEFragActionBar, mViewPager);

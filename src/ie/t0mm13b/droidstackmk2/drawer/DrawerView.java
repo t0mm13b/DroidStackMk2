@@ -1,5 +1,8 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 import com.squareup.picasso.Picasso;
 
 import ie.t0mm13b.droidstackmk2.R;
@@ -19,8 +22,8 @@ import android.widget.TextView;
  */
 public class DrawerView extends RelativeLayout{
 
-	private ImageView mDrawerImage;
-	private TextView mDrawerTextEntry;
+	@InjectView(R.id.ivDrawerEntryIcon) ImageView mDrawerImage;
+	@InjectView(R.id.tvDrawerEntryText) TextView mDrawerTextEntry;
 	
 	public DrawerView(Context context) {
 		super(context);
@@ -48,8 +51,7 @@ public class DrawerView extends RelativeLayout{
 	@Override
 	protected void onFinishInflate() {
 		super.onFinishInflate();
-		mDrawerImage = (ImageView)findViewById(R.id.ivDrawerEntryIcon);
-		mDrawerTextEntry = (TextView)findViewById(R.id.tvDrawerEntryText);
+		ButterKnife.inject(this, this);
 	}
 	
 	/***

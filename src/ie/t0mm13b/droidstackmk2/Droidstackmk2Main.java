@@ -298,14 +298,14 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	 */
 	@Subscribe
 	public void onDrawerItemClicked(DrawerItemClickEvent event){
-		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerFrameLayout);
-		if (drawerOpen){
-			Utils.LogIt(TAG, "onDrawerItemClicked(...) - drawer *IS* open!");
-			getFragmentManager().popBackStack();
-			// make sure transactions are finished before reading backstack count
-			getFragmentManager().executePendingTransactions();
-			onFragmentFinished(new FragmentFinishedEvent());
-		}
+//		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerFrameLayout);
+//		if (drawerOpen){
+//			Utils.LogIt(TAG, "onDrawerItemClicked(...) - drawer *IS* open!");
+//			getFragmentManager().popBackStack();
+//			// make sure transactions are finished before reading backstack count
+//			getFragmentManager().executePendingTransactions();
+//			onFragmentFinished(new FragmentFinishedEvent());
+//		}
 		final DrawerRowEntry dre = event.getDREntry();
 		final int position = event.getDREntryPosition();
 		Utils.LogIt(TAG, String.format("onDrawerItemClicked(...) - position = %d; actionBarText = %s", 

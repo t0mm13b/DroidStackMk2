@@ -1,5 +1,8 @@
 package ie.t0mm13b.droidstackmk2.drawer;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 import com.squareup.picasso.Picasso;
 import static butterknife.ButterKnife.findById;
 import ie.t0mm13b.droidstackmk2.R;
@@ -11,6 +14,7 @@ import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -25,10 +29,10 @@ public class StackExchangeUserDialog extends DialogFragment{
 	private static final String DUD_DRE_KEY = "DUD_DRE";
 	private static final String DUD_DRE_POS = "DUD_POS";
 	
-	private TextView mTVSiteName;
-	private ImageView mIVSiteLogo;
-	private EditText mEditSENumber;
-	private Button mButtonSubmit;
+	@InjectView(R.id.tvDrawrUsrPickrSelectdSite) TextView mTVSiteName;
+	@InjectView(R.id.ivDrwrSelectdSite) ImageView mIVSiteLogo;
+	@InjectView(R.id.etDrawrUsrPickrAccNbr) EditText mEditSENumber;
+	@InjectView(R.id.btnDrawrUsrPickrSubmit) Button mButtonSubmit;
 	
 	public static StackExchangeUserDialog newInstance(DrawerRowEntry dre, int position){
 		StackExchangeUserDialog dudFrag = new StackExchangeUserDialog();
@@ -53,7 +57,11 @@ public class StackExchangeUserDialog extends DialogFragment{
 		final Dialog dudlg = new Dialog(getActivity());
 		dudlg.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 		dudlg.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		dudlg.setContentView(R.layout.drawer_userpicker_dlgfrag);
+		//
+		View dlgView = LayoutInflater.from(getActivity()).inflate(R.layout.drawer_userpicker_dlgfrag, null);
+		dudlg.setContentView(dlgView);
+		ButterKnife.inject(this, dlgView);
+		//
 		dudlg.setOnKeyListener(new OnKeyListener(){
 
 			@Override
@@ -67,11 +75,7 @@ public class StackExchangeUserDialog extends DialogFragment{
 			}
 			
 		});
-		//dudlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-		mTVSiteName = (TextView) dudlg.findViewById(R.id.tvDrawrUsrPickrSelectdSite);
-		mIVSiteLogo = (ImageView) dudlg.findViewById(R.id.ivDrwrSelectdSite);
-		mEditSENumber = (EditText)dudlg.findViewById(R.id.etDrawrUsrPickrAccNbr);
-		mButtonSubmit = (Button)dudlg.findViewById(R.id.btnDrawrUsrPickrSubmit);
+		//
 		if (dre != null){
 			mTVSiteName.setText(dre.getDrawerText());
 			Picasso.with(getActivity())
