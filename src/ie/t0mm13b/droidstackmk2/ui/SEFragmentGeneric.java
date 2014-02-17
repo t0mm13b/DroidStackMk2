@@ -16,10 +16,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +29,6 @@ import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
 import ie.t0mm13b.droidstackmk2.helpers.BaseFragment;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 
 /***
  * The Generic fragment that shall incorporate the visuals of teh StackExchange site network depending on what was selected via 
@@ -158,7 +155,6 @@ public class SEFragmentGeneric extends BaseFragment{
     public static class PagingTabStripAdapter extends FragmentPagerAdapter{
     	private static final String TAG = "PagingTabStripAdapter";
     	private String[] mTabTitles;
-    	private int mCurrentPagePosition = 0;
     	private FragmentManager mFragManager;
     	private List<String> mListFrags = new ArrayList<String>();
     	private Context mContext;
@@ -180,47 +176,13 @@ public class SEFragmentGeneric extends BaseFragment{
 
 		@Override
 		public Fragment getItem(int argPosition) {
-//			if (SaveFragment(mCurrentPagePosition)){
-//				Utils.LogIt(TAG, "getItem(...) - Saved the state of old fragment");
-//			}else{
-//				// Probably initial display of fragment?
-//				Utils.LogIt(TAG, "getItem(...) - Could not save state!");
-//			}
 			String fragId = makeFragmentName(R.id.pager, argPosition);
 			Fragment frag = mFragManager.findFragmentByTag(fragId);
 			if (frag == null){
 				Utils.LogIt(TAG, "getItem(...) - frag is null...");
 				frag = Fragment.instantiate(mContext, mListFrags.get(argPosition));
-//				return frag; 
 			}
-//			else{
-//				Utils.LogIt(TAG, "getItem(...) - frag is non-null...");
-//				if (RestoreFragment(frag)){
-//					Utils.LogIt(TAG, "getItem(...) - Restored the state of fragment");
-//				}else{
-//					Utils.LogIt(TAG, "getItem(...) - Could not restore the state of fragment");
-//				}
-//			}
-			mCurrentPagePosition = argPosition;
 			return frag;
-		}
-		
-		private boolean SaveFragment(int oldPosition){
-			String fragId = makeFragmentName(R.id.pager, oldPosition);
-			Fragment fragToHide = mFragManager.findFragmentByTag(fragId);
-			if (fragToHide != null){
-				((IFragmentLifecycle)fragToHide).onPauseFragment();
-				return true;
-			}
-			return false;
-		}
-		
-		private boolean RestoreFragment(Fragment fragToShow){
-			if (fragToShow != null){
-				((IFragmentLifecycle)fragToShow).onResumeFragment();
-				return true;
-			}
-			return false;
 		}
 
 		@Override

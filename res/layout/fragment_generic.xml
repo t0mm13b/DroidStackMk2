@@ -23,5 +23,6 @@
 		    android:layout_gravity="center"
 		    android:src="@drawable/ic_stub"
 		    android:alpha="0.5" />
+	</FrameLayout>
 
 </RelativeLayout>

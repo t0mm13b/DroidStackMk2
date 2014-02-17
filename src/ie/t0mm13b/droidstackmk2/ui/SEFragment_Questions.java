@@ -1,8 +1,6 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
 import ie.t0mm13b.droidstackmk2.R;
-import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,7 +16,7 @@ import android.view.ViewGroup;
  * @author t0mm13b
  *
  */
-public class SEFragment_Questions extends Fragment implements IFragmentLifecycle{
+public class SEFragment_Questions extends Fragment{
 	private static final String TAG = "SEFragment_Questions";
 	
 	public static SEFragment_Questions newInstance(Bundle args){
@@ -46,15 +44,4 @@ public class SEFragment_Questions extends Fragment implements IFragmentLifecycle
         return super.onOptionsItemSelected(item);
     }
 
-	@Override
-	public void onPauseFragment() {
-		// Save state here...
-		Utils.LogIt(TAG, "onPauseFragment(...)");
-	}
-
-	@Override
-	public void onResumeFragment() {
-		// Restore state here...
-		Utils.LogIt(TAG, "onResumeFragment(...)");		
-	}
 }

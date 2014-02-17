@@ -1,8 +1,6 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
 import ie.t0mm13b.droidstackmk2.R;
-import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,7 +16,7 @@ import android.view.ViewGroup;
  * @author t0mm13b
  *
  */
-public class SEFragment_UnansweredQuestions extends Fragment implements IFragmentLifecycle{
+public class SEFragment_UnansweredQuestions extends Fragment{
 	private static final String TAG = "SEFragment_UnansweredQuestions";
 	public static SEFragment_UnansweredQuestions newInstance(Bundle args){
 		SEFragment_UnansweredQuestions sefFQ = new SEFragment_UnansweredQuestions();
@@ -46,13 +44,4 @@ public class SEFragment_UnansweredQuestions extends Fragment implements IFragmen
         return super.onOptionsItemSelected(item);
     }
 
-	@Override
-	public void onPauseFragment() {
-		Utils.LogIt(TAG, "onPauseFragment(...)");
-	}
-
-	@Override
-	public void onResumeFragment() {
-		Utils.LogIt(TAG, "onResumeFragment(...)");
-	}
 }
