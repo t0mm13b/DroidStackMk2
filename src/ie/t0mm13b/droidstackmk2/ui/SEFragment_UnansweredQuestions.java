@@ -18,10 +18,10 @@ import android.view.ViewGroup;
  * @author t0mm13b
  *
  */
-public class SEFragment_FeaturedQuestions extends Fragment implements IFragmentLifecycle{
-	private static final String TAG = "SEFragment_FeaturedQuestions";
-	public static SEFragment_FeaturedQuestions newInstance(Bundle args){
-		SEFragment_FeaturedQuestions sefFQ = new SEFragment_FeaturedQuestions();
+public class SEFragment_UnansweredQuestions extends Fragment implements IFragmentLifecycle{
+	private static final String TAG = "SEFragment_UnansweredQuestions";
+	public static SEFragment_UnansweredQuestions newInstance(Bundle args){
+		SEFragment_UnansweredQuestions sefFQ = new SEFragment_UnansweredQuestions();
 		if (args != null) sefFQ.setArguments(args);
 		return sefFQ;
 	}
@@ -32,7 +32,7 @@ public class SEFragment_FeaturedQuestions extends Fragment implements IFragmentL
 	
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_generic_fquestions, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_generic_uquestions, container, false);
 
 		return rootView;
 	}
@@ -48,13 +48,11 @@ public class SEFragment_FeaturedQuestions extends Fragment implements IFragmentL
 
 	@Override
 	public void onPauseFragment() {
-		// Save state here...
 		Utils.LogIt(TAG, "onPauseFragment(...)");
 	}
 
 	@Override
 	public void onResumeFragment() {
-		// Restore state here...
-		Utils.LogIt(TAG, "onResumeFragment(...)");		
+		Utils.LogIt(TAG, "onResumeFragment(...)");
 	}
 }

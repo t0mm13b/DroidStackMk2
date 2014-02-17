@@ -8,6 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class DroidStackMk2Fragment extends Fragment{
+	
+	public static DroidStackMk2Fragment newInstance(Bundle argsBundle){
+		DroidStackMk2Fragment frag = new DroidStackMk2Fragment();
+		if (argsBundle != null){
+			frag.setArguments(argsBundle);
+		}
+		return frag;
+	}
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,6 +26,9 @@ public class DroidStackMk2Fragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_droidstackmk2, container, false);
         //
+        if (getArguments() != null){
+        	
+        }
         return rootView;
     }
 

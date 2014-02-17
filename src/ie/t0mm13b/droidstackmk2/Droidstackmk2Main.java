@@ -6,6 +6,7 @@ import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
 import ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent;
 import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
+import ie.t0mm13b.droidstackmk2.helpers.FakeStackExchange;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
@@ -125,13 +126,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			mUserInfo.addObserver(mFragmentDrawer);
 		}
 		//
-		Fragment frag = new DroidStackMk2Fragment();
+		Fragment frag = DroidStackMk2Fragment.newInstance(null);
 		FragmentTransaction transaction = mFragmentManager.beginTransaction();
 		transaction.replace(R.id.content_frame, frag);
 		transaction.commit();
 		//
-		RetrofitClient.getInstance().Initialize(null);
-		RetrofitClient.getInstance().SetLogging(LogLevel.BASIC);
+		RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
+		RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
 		//
 		new AsyncFetchSites().execute();
 	}
@@ -298,14 +299,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	 */
 	@Subscribe
 	public void onDrawerItemClicked(DrawerItemClickEvent event){
-//		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerFrameLayout);
-//		if (drawerOpen){
-//			Utils.LogIt(TAG, "onDrawerItemClicked(...) - drawer *IS* open!");
-//			getFragmentManager().popBackStack();
-//			// make sure transactions are finished before reading backstack count
-//			getFragmentManager().executePendingTransactions();
-//			onFragmentFinished(new FragmentFinishedEvent());
-//		}
 		final DrawerRowEntry dre = event.getDREntry();
 		final int position = event.getDREntryPosition();
 		Utils.LogIt(TAG, String.format("onDrawerItemClicked(...) - position = %d; actionBarText = %s", 

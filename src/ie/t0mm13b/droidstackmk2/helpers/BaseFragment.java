@@ -17,7 +17,7 @@ import android.view.MenuItem;
  * 
  */
 public class BaseFragment extends Fragment {
-
+	private static final String TAG = "BaseFragment";
 	private ActionBarActivity mActionBarActivity;
 	private ActionBar mActionBar;
 	
@@ -41,12 +41,17 @@ public class BaseFragment extends Fragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		int nStackCount = getFragmentManager().getBackStackEntryCount();
+		Utils.LogIt(TAG, "getBackStackEntryCount = " + nStackCount);
 		switch (item.getItemId()) {
 		// Respond to the action bar's Up/Home button
 		case android.R.id.home:
-			getFragmentManager().popBackStack();
-			// make sure transactions are finished before reading backstack count
-			getFragmentManager().executePendingTransactions();
+			if (nStackCount > 0){
+				getFragmentManager().popBackStack();
+				// make sure transactions are finished before reading backstack count
+				boolean ptExecd = getFragmentManager().executePendingTransactions();
+				Utils.LogIt(TAG, "ptExecd = " + String.valueOf(ptExecd));
+			}
 			EventBusProvider.getInstance().post(new FragmentFinishedEvent());
 
 			return true;

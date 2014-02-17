@@ -1,6 +1,7 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
 import ie.t0mm13b.droidstackmk2.R;
+import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.interfaces.IFragmentLifecycle;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +19,13 @@ import android.view.ViewGroup;
  *
  */
 public class SEFragment_Questions extends Fragment implements IFragmentLifecycle{
-
+	private static final String TAG = "SEFragment_Questions";
+	
+	public static SEFragment_Questions newInstance(Bundle args){
+		SEFragment_Questions sefQ = new SEFragment_Questions();
+		if (args != null) sefQ.setArguments(args);
+		return sefQ;
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,14 +48,13 @@ public class SEFragment_Questions extends Fragment implements IFragmentLifecycle
 
 	@Override
 	public void onPauseFragment() {
-		// TODO Auto-generated method stub
 		// Save state here...
+		Utils.LogIt(TAG, "onPauseFragment(...)");
 	}
 
 	@Override
 	public void onResumeFragment() {
-		// TODO Auto-generated method stub
 		// Restore state here...
-		
+		Utils.LogIt(TAG, "onResumeFragment(...)");		
 	}
 }
