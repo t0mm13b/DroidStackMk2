@@ -138,11 +138,11 @@ public class SEFragmentGeneric extends BaseFragment{
 			Utils.LogIt(TAG, String.format("activityCreated(...) - position = %d; actionBarText = %s", 
 					mDrawerPosition, 
 					mDrawerEntry.getDrawerText()));
-			if (getActionBar() != null){
-	        	getActionBar().setTitle(mDrawerEntry.getDrawerText());
-	        }else{
-	        	Utils.LogIt(TAG, "activityCreated(...) - getActionBar() is null");
-	        }
+//			if (getActionBar() != null){
+//	        	getActionBar().setTitle(mDrawerEntry.getDrawerText());
+//	        }else{
+//	        	Utils.LogIt(TAG, "activityCreated(...) - getActionBar() is null");
+//	        }
 		}else{
 			Utils.LogIt(TAG, "activityCreated(...) - savedInstanceState is null");
 		}

@@ -139,7 +139,10 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			for (DrawerRowEntry dre : stackList){
 				mStackDRE.push(dre);
 			}
-			
+			// NEed to resstore text via top of stack!
+			if (mStackDRE.size() > 0){
+				mActionBar.setTitle(mStackDRE.peek().getDrawerText());
+			}
 		}else{
 			mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
 			//
