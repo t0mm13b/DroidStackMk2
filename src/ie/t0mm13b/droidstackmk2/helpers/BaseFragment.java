@@ -16,7 +16,7 @@ import android.view.MenuItem;
  * @author tombrennan
  * 
  */
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 	private static final String TAG = "BaseFragment";
 	private ActionBarActivity mActionBarActivity;
 	private ActionBar mActionBar;
@@ -24,10 +24,18 @@ public class BaseFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mActionBarActivity = (ActionBarActivity) this.getActivity();
-		mActionBar = mActionBarActivity.getSupportActionBar();
-		mActionBar.setDisplayHomeAsUpEnabled(true);
-		mActionBar.setHomeButtonEnabled(true);
+		mActionBarActivity = (ActionBarActivity) BaseFragment.this.getActivity();
+		if (mActionBarActivity != null){
+			mActionBar = mActionBarActivity.getSupportActionBar();
+			if (mActionBar != null){
+				mActionBar.setDisplayHomeAsUpEnabled(true);
+				mActionBar.setHomeButtonEnabled(true);
+			}else{
+				Utils.LogIt(TAG,  "onCreate(...) - mActionBar is null");
+			}
+		}else{
+			Utils.LogIt(TAG,  "onCreate(...) - mActionBarActivity is null");
+		}
 	}
 
 	protected ActionBar getActionBar(){
@@ -42,7 +50,7 @@ public class BaseFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int nStackCount = getFragmentManager().getBackStackEntryCount();
-		Utils.LogIt(TAG, "getBackStackEntryCount = " + nStackCount);
+//		Utils.LogIt(TAG, "getBackStackEntryCount = " + nStackCount);
 		switch (item.getItemId()) {
 		// Respond to the action bar's Up/Home button
 		case android.R.id.home:
@@ -50,7 +58,7 @@ public class BaseFragment extends Fragment {
 				getFragmentManager().popBackStack();
 				// make sure transactions are finished before reading backstack count
 				boolean ptExecd = getFragmentManager().executePendingTransactions();
-				Utils.LogIt(TAG, "ptExecd = " + String.valueOf(ptExecd));
+//				Utils.LogIt(TAG, "ptExecd = " + String.valueOf(ptExecd));
 			}
 			EventBusProvider.getInstance().post(new FragmentFinishedEvent());
 
@@ -58,4 +66,20 @@ public class BaseFragment extends Fragment {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState){
+		super.onActivityCreated(savedInstanceState);
+		Utils.LogIt(TAG, "onActivityCreated(...)");
+		activityCreated(savedInstanceState);
+	}
+	@Override
+	public void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
+		Utils.LogIt(TAG, "onSaveInstanceState(...)");
+		saveInstanceState(outState);		
+	}
+	
+	public abstract void activityCreated(Bundle savedInstanceState);
+	public abstract void saveInstanceState(Bundle outState);
 }

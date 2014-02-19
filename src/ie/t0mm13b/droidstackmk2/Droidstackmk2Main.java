@@ -6,7 +6,6 @@ import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
 import ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent;
 import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
 import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
-import ie.t0mm13b.droidstackmk2.helpers.FakeStackExchange;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
@@ -52,7 +51,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,6 +78,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	private static final String SESECRETP_KEY = "client_secret";
 	private static final String SESECRETP_VALUE = "jtLcZ6ruFMN2Woif6PKwUw((";
 	//
+	private static final String MDSKEY_EVTBUS_REG = "MDS_EVTBUS_REGD";
+	private static final String MDSKEY_FRAGLISTNR_REG = "MDS_FRAGLSTNR_REGD";
+	private static final String MDSKEY_USERINFO_OBSERVD = "MDS_USERINFO_OBSERVD";
+	private static final String MDSKEY_FRAGDRAWER = "MDS_FRAGDRAWER";
+	private static final String MDSKEY_TITLE = "MDS_TITLE";
+	private static final String MDSKEY_STACK = "MDS_STACK";
+	//
 	private ActionBar mActionBar;
 	private FragmentManager mFragmentManager;
 	//
@@ -91,19 +96,20 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	private MenuItem mOptionsRefresh;
 	private MenuItem mOptionsSearch;
 	//
-	private CharSequence mDrawerTitle;
-	private CharSequence mTitle;
-	//
 	private boolean mRefreshing = false;
 	//
-	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
-	//
 	private DrawerFragment mFragmentDrawer;
+	private Fragment mFragmentMain;
 	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
 	//
 	private Map<String, Site> mSiteMap = new HashMap<String, Site>();
+	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
 	//
 	private boolean mEventBusIsRegistered = false;
+	private boolean mFragStackListening = false;
+	private boolean mUserInfoObserving = false;
+	//
+	private FragmentStackListener mFragStackListnr = new FragmentStackListener();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -112,29 +118,56 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		//
 		setContentView(R.layout.activity_droidstackmk2_main);
 		
-		this.mDrawerFrameLayout = (FrameLayout)this.findViewById(R.id.drawer);
+		mDrawerFrameLayout = (FrameLayout)this.findViewById(R.id.drawer);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		//
+		mFragmentManager = getSupportFragmentManager();
 		//
 		this.initActionBar();
 		this.initDrawer();
 		//
-		EventBusProvider.getInstance().register(this);
-		mEventBusIsRegistered = true;
-		//
-		mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
-		if (mFragmentDrawer != null){
-			Log.d(TAG, "Found our fragment!");
-			mUserInfo.addObserver(mFragmentDrawer);
+		if (savedInstanceState != null){
+			mEventBusIsRegistered = savedInstanceState.getBoolean(MDSKEY_EVTBUS_REG);
+			mUserInfoObserving = savedInstanceState.getBoolean(MDSKEY_USERINFO_OBSERVD);
+			mFragStackListening = savedInstanceState.getBoolean(MDSKEY_FRAGLISTNR_REG);
+			mFragmentDrawer = (DrawerFragment) mFragmentManager.getFragment(savedInstanceState, MDSKEY_FRAGDRAWER);
+			mActionBar.setTitle(savedInstanceState.getString(MDSKEY_TITLE));
+			mDrawerToggle.syncState();
+			adjustActionBarToggle();
+			List<DrawerRowEntry> stackList = savedInstanceState.getParcelableArrayList(MDSKEY_STACK);
+			if (mStackDRE.size() > 0) mStackDRE.clear();
+			for (DrawerRowEntry dre : stackList){
+				mStackDRE.push(dre);
+			}
+			
+		}else{
+			mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
+			//
+			if (!RetrofitClient.IsClientReady()){
+				RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
+				RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
+				//
+				new AsyncFetchSites().execute();
+			}
+			//
+			mFragmentMain = DroidStackMk2Fragment.newInstance(null);
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
+			transaction.replace(R.id.content_frame, mFragmentMain);
+			transaction.commit();
 		}
-		//
-		Fragment frag = DroidStackMk2Fragment.newInstance(null);
-		FragmentTransaction transaction = mFragmentManager.beginTransaction();
-		transaction.replace(R.id.content_frame, frag);
-		transaction.commit();
-		//
-		RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
-		RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
-		//
-		new AsyncFetchSites().execute();
+		if (!mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.addObserver(mFragmentDrawer);
+			mUserInfoObserving = true;
+		}
+		if (!mEventBusIsRegistered){
+			EventBusProvider.getInstance().register(this);
+			mEventBusIsRegistered = true;
+		}
+		if (!mFragStackListening){
+			mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = true;
+		}
+
 	}
 
 	@Override
@@ -213,6 +246,14 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			EventBusProvider.getInstance().unregister(this);
 			mEventBusIsRegistered = false;
 		}
+		if (mFragStackListening){
+			mFragmentManager.removeOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = false;
+		}
+		if (mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.deleteObserver(mFragmentDrawer);
+			mUserInfoObserving = false;
+		}
 	}
 	
 	@Override
@@ -222,8 +263,27 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			EventBusProvider.getInstance().register(this);
 			mEventBusIsRegistered = true;
 		}
+		if (!mFragStackListening){
+			mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = true;
+		}
+		if (!mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.addObserver(mFragmentDrawer);
+			mUserInfoObserving = true;
+		}
 	}
 	
+	@Override
+	protected void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(MDSKEY_EVTBUS_REG, mEventBusIsRegistered);
+		outState.putBoolean(MDSKEY_FRAGLISTNR_REG, mFragStackListening);
+		outState.putBoolean(MDSKEY_USERINFO_OBSERVD, mUserInfoObserving);
+		outState.putString(MDSKEY_TITLE, getTitle().toString());
+		ArrayList<DrawerRowEntry> listFromStack = new ArrayList<DrawerRowEntry>(mStackDRE);
+		outState.putParcelableArrayList(MDSKEY_STACK, listFromStack);
+		mFragmentManager.putFragment(outState, MDSKEY_FRAGDRAWER, mFragmentDrawer);
+	}
 	private void handleDrawerOpenClose() {
 		ActivityCompat.invalidateOptionsMenu(Droidstackmk2Main.this); // creates
 																	// call to
@@ -245,8 +305,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	 * Initialise the sliding drawer navigation
 	 */
 	private void initDrawer() {
-		mTitle = mDrawerTitle = getTitle();
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		//
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open,
@@ -267,18 +325,9 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		// Set the drawer toggle as the DrawerListener
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		//
-		mFragmentManager = getSupportFragmentManager();
-		mFragmentManager
-				.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-
-					@Override
-					public void onBackStackChanged() {
-						adjustActionBarToggle();
-					}
-
-				});
-		
-
+		mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+		//
+		mFragStackListening = true;
 	}
 
 	
@@ -460,18 +509,9 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			mActionBar.setTitle(dre.getDrawerText());
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
 			mStackDRE.push(dre);
-			dumpStack();
 		}
 	}
 	
-	private void dumpStack(){
-		Utils.LogIt(TAG, "dumpStack *** ENTER ***");
-		for (DrawerRowEntry dre : mStackDRE){
-			Log.d(TAG, "dumpStack: dre = " + dre);
-		}
-		Utils.LogIt(TAG, "dumpStack *** LEAVE ***");
-	}
-
 	/***
 	 * Event raised when the fragment has the chevron tapped to up the parent activity.
 	 * 
@@ -653,4 +693,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 		
 	}
+	class FragmentStackListener implements FragmentManager.OnBackStackChangedListener{
+
+		@Override
+		public void onBackStackChanged() {
+			adjustActionBarToggle();
+		}
+		
+	}
+
 }

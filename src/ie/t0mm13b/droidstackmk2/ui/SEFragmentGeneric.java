@@ -1,6 +1,5 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,14 +9,12 @@ import com.squareup.picasso.Picasso;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,38 +67,14 @@ public class SEFragmentGeneric extends BaseFragment{
 			Utils.LogIt(TAG, String.format("onCreate(...) - mDrawerPosition = %d; mDrawerEntry = %s", mDrawerPosition, mDrawerEntry.toString()));
         }
     }
-
-	@Override
-	public void onAttach(Activity activity){
-		super.onAttach(activity);
-		
-	}
-	
-	//http://stackoverflow.com/questions/18977923/viewpager-with-nested-fragments
-	//http://stackoverflow.com/questions/15207305/getting-the-error-java-lang-illegalstateexception-activity-has-been-destroyed/15656428#15656428
-	@Override
-	public void onDetach(){
-		super.onDetach();
-		Utils.LogIt(TAG, "onDetach(...)");
-		try {
-	        Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
-	        childFragmentManager.setAccessible(true);
-	        childFragmentManager.set(this, null);
-
-	    } catch (NoSuchFieldException e) {
-	        throw new RuntimeException(e);
-	    } catch (IllegalAccessException e) {
-	        throw new RuntimeException(e);
-	    }
-	}
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_generic, container, false);
+    	Utils.LogIt(TAG,  "onCreateView(...)");
+    	View rootView = inflater.inflate(R.layout.fragment_generic, container, false);
         //
         ButterKnife.inject(this, rootView);
         //
-        
         if (mDrawerEntry != null){
         	Picasso.with(getActivity())
 	        	.load(mDrawerEntry.getDrawerIcon())
@@ -111,27 +84,30 @@ public class SEFragmentGeneric extends BaseFragment{
         	mPageTabStripAdapter = new PagingTabStripAdapter(getChildFragmentManager(), getActivity());
         	mViewPager.setAdapter(mPageTabStripAdapter);
         	mPageTabStrip.setViewPager(mViewPager);
-        	mPageTabStrip.setOnPageChangeListener(new OnPageChangeListener(){
-
-				@Override
-				public void onPageScrollStateChanged(int arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void onPageScrolled(int arg0, float arg1, int arg2) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void onPageSelected(int arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-        		
-        	});
+//        	mPageTabStrip.setOnPageChangeListener(new OnPageChangeListener(){
+//
+//				@Override
+//				public void onPageScrollStateChanged(int arg0) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//
+//				@Override
+//				public void onPageScrolled(int arg0, float arg1, int arg2) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//
+//				@Override
+//				public void onPageSelected(int arg0) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//        		
+//        	});
+        }
+        if (getActionBar() != null){
+        	getActionBar().setTitle(mDrawerEntry.getDrawerText());
         }
         //
         return rootView;
@@ -151,6 +127,32 @@ public class SEFragmentGeneric extends BaseFragment{
         // }
         return super.onOptionsItemSelected(item);
     }
+
+
+	@Override
+	public void activityCreated(Bundle savedInstanceState) {
+		Utils.LogIt(TAG, "activityCreated(...)");
+		if (savedInstanceState != null){
+			mDrawerEntry = savedInstanceState.getParcelable(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_ITEM_KEY);
+			mDrawerPosition = savedInstanceState.getInt(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_POSN_KEY);
+			Utils.LogIt(TAG, String.format("activityCreated(...) - position = %d; actionBarText = %s", 
+					mDrawerPosition, 
+					mDrawerEntry.getDrawerText()));
+			if (getActionBar() != null){
+	        	getActionBar().setTitle(mDrawerEntry.getDrawerText());
+	        }else{
+	        	Utils.LogIt(TAG, "activityCreated(...) - getActionBar() is null");
+	        }
+		}else{
+			Utils.LogIt(TAG, "activityCreated(...) - savedInstanceState is null");
+		}
+	}
+	@Override
+	public void saveInstanceState(Bundle outState) {
+		Utils.LogIt(TAG, "saveInstanceState(...)");
+		outState.putParcelable(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_ITEM_KEY, mDrawerEntry);
+		outState.putInt(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_POSN_KEY, mDrawerPosition);
+	}
 
     public static class PagingTabStripAdapter extends FragmentPagerAdapter{
     	private static final String TAG = "PagingTabStripAdapter";
@@ -179,7 +181,7 @@ public class SEFragmentGeneric extends BaseFragment{
 			String fragId = makeFragmentName(R.id.pager, argPosition);
 			Fragment frag = mFragManager.findFragmentByTag(fragId);
 			if (frag == null){
-				Utils.LogIt(TAG, "getItem(...) - frag is null...");
+//				Utils.LogIt(TAG, "getItem(...) - frag is null...");
 				frag = Fragment.instantiate(mContext, mListFrags.get(argPosition));
 			}
 			return frag;

@@ -2,6 +2,9 @@ package com.stackexchange.api.objects;
 
 import java.util.Arrays;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.UserType;
 
@@ -16,7 +19,7 @@ import com.stackexchange.api.objects.Enums.UserType;
  *
  * @see http://api.stackexchange.com/docs/types/user
  */
-public class User {
+public class User implements Parcelable{
 	@SerializedName("about_me") public String aboutMe = ""; // may be absent
 	@SerializedName("accept_rate") public int acceptRate = -1; // may be absent
 	@SerializedName("account_id") public int accountId = -1;
@@ -46,6 +49,10 @@ public class User {
 	@SerializedName("view_count") public int viewCount = -1;
 	@SerializedName("website_url") public String websiteUrl = "";// may be absent
 
+	private User(Parcel in){
+		readFromParcel(in);
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -247,5 +254,89 @@ public class User {
 		builder.append("]");
 		return builder.toString();
 	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
 	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(aboutMe);
+		dest.writeInt(acceptRate);
+		dest.writeInt(accountId);
+		dest.writeInt(age);
+		dest.writeInt(answerCount);
+		dest.writeParcelable(badges, flags);
+		dest.writeLong(creationDate);
+		dest.writeString(displayName);
+		dest.writeInt(downvoteCount);
+		dest.writeInt((isEmployee) ? 1 : 0);
+		dest.writeLong(lastAccessDate);
+		dest.writeLong(lastModifiedDate);
+		dest.writeString(link);
+		dest.writeString(location);
+		dest.writeString(profileImage);
+		dest.writeInt(questionCount);
+		dest.writeInt(reputation);
+		dest.writeInt(repChangeDay);
+		dest.writeInt(repChangeMonth);
+		dest.writeInt(repChangeQuarter);
+		dest.writeInt(repChangeWeek);
+		dest.writeInt(repChangeYear);
+		dest.writeLong(timedPenaltyDate);
+		dest.writeInt(upvoteCount);
+		dest.writeInt(userId);
+		dest.writeInt((userType == null) ? -1 : userType.ordinal());
+		dest.writeInt(viewCount);
+		dest.writeString(websiteUrl);
+		dest.writeInt(this.hashCode());
+	}
+	private void readFromParcel(Parcel src){
+		aboutMe = src.readString();
+		acceptRate = src.readInt();
+		accountId = src.readInt();
+		age = src.readInt();
+		answerCount = src.readInt();
+		badges = src.readParcelable(BadgeCounts.class.getClassLoader());
+		creationDate = src.readLong();
+		displayName = src.readString();
+		downvoteCount = src.readInt();
+		int nBoolIsEmp = src.readInt();
+		isEmployee = (nBoolIsEmp == 1) ? true : false;
+		lastAccessDate = src.readLong();
+		lastModifiedDate = src.readLong();
+		link = src.readString();
+		location = src.readString();
+		profileImage = src.readString();
+		questionCount = src.readInt();
+		reputation = src.readInt();
+		repChangeDay = src.readInt();
+		repChangeMonth = src.readInt();
+		repChangeQuarter = src.readInt();
+		repChangeWeek = src.readInt();
+		repChangeYear = src.readInt();
+		timedPenaltyDate = src.readLong();
+		upvoteCount = src.readInt();
+		userId = src.readInt();
+		int nEnumVal = src.readInt();
+		userType = (nEnumVal == -1) ? UserType.Unknown : UserType.values()[nEnumVal];
+		viewCount = src.readInt();
+		websiteUrl = src.readString();
+		int lHash = src.readInt();
+		if (lHash != this.hashCode()){
+			throw new IllegalStateException("Inconsistent User hashcode match");
+		}
+	}
+	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+
+		@Override
+		public User createFromParcel(Parcel source) {
+			return new User(source);
+		}
+
+		@Override
+		public User[] newArray(int size) {
+			return new User[size];
+		}
+	};
 }

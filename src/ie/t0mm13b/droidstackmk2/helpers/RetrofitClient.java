@@ -85,6 +85,10 @@ public class RetrofitClient {
 			mRestAdapterClient.setLogLevel(retrofitLogLevel);
 		}
 	}
+	
+	public static boolean IsClientReady(){
+		return isRestClientReady;
+	}
 	/***
 	 * Add in the API key dynamically alongside the other parameters at run-time.
 	 * 
