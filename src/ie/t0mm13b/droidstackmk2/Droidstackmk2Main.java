@@ -2,22 +2,26 @@ package ie.t0mm13b.droidstackmk2;
 
 import ie.t0mm13b.droidstackmk2.drawer.DrawerFragment;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
-import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment;
-import ie.t0mm13b.droidstackmk2.drawer.DrawerUserDialogFragment.IDrawerUserPickerDialog;
-import ie.t0mm13b.droidstackmk2.drawer.IDrawerListItem;
+import ie.t0mm13b.droidstackmk2.events.DrawerItemClickEvent;
+import ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent;
+import ie.t0mm13b.droidstackmk2.events.FragmentFinishedEvent;
+import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
-import ie.t0mm13b.droidstackmk2.interfaces.IFragmentNotify;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.squareup.otto.Subscribe;
 import com.stackexchange.api.objects.CommonSEWrapper;
 import com.stackexchange.api.objects.Enums.SiteState;
 import com.stackexchange.api.objects.Enums.SiteType;
@@ -47,7 +51,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,7 +69,7 @@ import android.widget.Toast;
  * @see IDrawerListItem
  * @see IFragmentNotify
  */
-public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListItem, IFragmentNotify/*, OnQueryTextListener*/{
+public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTextListener*/{
 	private static final String TAG = "Droidstackmk2Main";
 	//http://stackapps.com/apps/oauth/view/2563
 	private static final String SECLIENTIDP_KEY = "client_id";
@@ -74,6 +77,13 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	//
 	private static final String SESECRETP_KEY = "client_secret";
 	private static final String SESECRETP_VALUE = "jtLcZ6ruFMN2Woif6PKwUw((";
+	//
+	private static final String MDSKEY_EVTBUS_REG = "MDS_EVTBUS_REGD";
+	private static final String MDSKEY_FRAGLISTNR_REG = "MDS_FRAGLSTNR_REGD";
+	private static final String MDSKEY_USERINFO_OBSERVD = "MDS_USERINFO_OBSERVD";
+	private static final String MDSKEY_FRAGDRAWER = "MDS_FRAGDRAWER";
+	private static final String MDSKEY_TITLE = "MDS_TITLE";
+	private static final String MDSKEY_STACK = "MDS_STACK";
 	//
 	private ActionBar mActionBar;
 	private FragmentManager mFragmentManager;
@@ -86,17 +96,20 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	private MenuItem mOptionsRefresh;
 	private MenuItem mOptionsSearch;
 	//
-	private CharSequence mDrawerTitle;
-	private CharSequence mTitle;
-	//
 	private boolean mRefreshing = false;
 	//
-	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
-	//
 	private DrawerFragment mFragmentDrawer;
+	private Fragment mFragmentMain;
 	private DrawerUserSEInfo mUserInfo = new DrawerUserSEInfo();
 	//
 	private Map<String, Site> mSiteMap = new HashMap<String, Site>();
+	private Stack<DrawerRowEntry> mStackDRE = new Stack<DrawerRowEntry>();
+	//
+	private boolean mEventBusIsRegistered = false;
+	private boolean mFragStackListening = false;
+	private boolean mUserInfoObserving = false;
+	//
+	private FragmentStackListener mFragStackListnr = new FragmentStackListener();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -105,29 +118,59 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		//
 		setContentView(R.layout.activity_droidstackmk2_main);
 		
-		this.mDrawerFrameLayout = (FrameLayout)this.findViewById(R.id.drawer);
+		mDrawerFrameLayout = (FrameLayout)this.findViewById(R.id.drawer);
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		//
+		mFragmentManager = getSupportFragmentManager();
 		//
 		this.initActionBar();
 		this.initDrawer();
 		//
-		mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
-		if (mFragmentDrawer != null){
-			Log.d(TAG, "Found our fragment!");
-			if (!mFragmentDrawer.isListenerRegistered()){
-				mFragmentDrawer.registerListener(this);
+		if (savedInstanceState != null){
+			mEventBusIsRegistered = savedInstanceState.getBoolean(MDSKEY_EVTBUS_REG);
+			mUserInfoObserving = savedInstanceState.getBoolean(MDSKEY_USERINFO_OBSERVD);
+			mFragStackListening = savedInstanceState.getBoolean(MDSKEY_FRAGLISTNR_REG);
+			mFragmentDrawer = (DrawerFragment) mFragmentManager.getFragment(savedInstanceState, MDSKEY_FRAGDRAWER);
+			mActionBar.setTitle(savedInstanceState.getString(MDSKEY_TITLE));
+			mDrawerToggle.syncState();
+			adjustActionBarToggle();
+			List<DrawerRowEntry> stackList = savedInstanceState.getParcelableArrayList(MDSKEY_STACK);
+			if (mStackDRE.size() > 0) mStackDRE.clear();
+			for (DrawerRowEntry dre : stackList){
+				mStackDRE.push(dre);
 			}
-			mUserInfo.addObserver(mFragmentDrawer);
+			// NEed to resstore text via top of stack!
+			if (mStackDRE.size() > 0){
+				mActionBar.setTitle(mStackDRE.peek().getDrawerText());
+			}
+		}else{
+			mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
+			//
+			if (!RetrofitClient.IsClientReady()){
+				RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
+				RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
+				//
+				new AsyncFetchSites().execute();
+			}
+			//
+			mFragmentMain = DroidStackMk2Fragment.newInstance(null);
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
+			transaction.replace(R.id.content_frame, mFragmentMain);
+			transaction.commit();
 		}
-		//
-		Fragment frag = new DroidStackMk2Fragment();
-		FragmentTransaction transaction = mFragmentManager.beginTransaction();
-		transaction.replace(R.id.content_frame, frag);
-		transaction.commit();
-		//
-		RetrofitClient.getInstance().Initialize(null);
-		RetrofitClient.getInstance().SetLogging(LogLevel.BASIC);
-		//
-		new AsyncFetchSites().execute();
+		if (!mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.addObserver(mFragmentDrawer);
+			mUserInfoObserving = true;
+		}
+		if (!mEventBusIsRegistered){
+			EventBusProvider.getInstance().register(this);
+			mEventBusIsRegistered = true;
+		}
+		if (!mFragStackListening){
+			mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = true;
+		}
+
 	}
 
 	@Override
@@ -199,6 +242,60 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}
 	}
 	
+	/***
+	 * De register any handlers as we're going into pause state
+	 */
+	@Override
+	protected void onPause(){
+		super.onPause();
+		if (mEventBusIsRegistered){
+			EventBusProvider.getInstance().unregister(this);
+			mEventBusIsRegistered = false;
+		}
+		if (mFragStackListening){
+			mFragmentManager.removeOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = false;
+		}
+		if (mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.deleteObserver(mFragmentDrawer);
+			mUserInfoObserving = false;
+		}
+	}
+	
+	/***
+	 * Re register the handlers as we're alive n kicking
+	 */
+	@Override
+	protected void onResume(){
+		super.onResume();
+		if (!mEventBusIsRegistered){
+			EventBusProvider.getInstance().register(this);
+			mEventBusIsRegistered = true;
+		}
+		if (!mFragStackListening){
+			mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+			mFragStackListening = true;
+		}
+		if (!mUserInfoObserving && mFragmentDrawer != null){
+			mUserInfo.addObserver(mFragmentDrawer);
+			mUserInfoObserving = true;
+		}
+	}
+	
+	/***
+	 * Save the state of play here, could be for rotation...
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState){
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(MDSKEY_EVTBUS_REG, mEventBusIsRegistered);
+		outState.putBoolean(MDSKEY_FRAGLISTNR_REG, mFragStackListening);
+		outState.putBoolean(MDSKEY_USERINFO_OBSERVD, mUserInfoObserving);
+		outState.putString(MDSKEY_TITLE, getTitle().toString());
+		ArrayList<DrawerRowEntry> listFromStack = new ArrayList<DrawerRowEntry>(mStackDRE);
+		outState.putParcelableArrayList(MDSKEY_STACK, listFromStack);
+		mFragmentManager.putFragment(outState, MDSKEY_FRAGDRAWER, mFragmentDrawer);
+	}
 	private void handleDrawerOpenClose() {
 		ActivityCompat.invalidateOptionsMenu(Droidstackmk2Main.this); // creates
 																	// call to
@@ -220,8 +317,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 	 * Initialise the sliding drawer navigation
 	 */
 	private void initDrawer() {
-		mTitle = mDrawerTitle = getTitle();
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		//
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open,
@@ -242,19 +337,9 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		// Set the drawer toggle as the DrawerListener
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		//
-		mFragmentManager = getSupportFragmentManager();
-		mFragmentManager
-				.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-
-					@Override
-					public void onBackStackChanged() {
-						// TODO Auto-generated method stub
-						adjustActionBarToggle();
-					}
-
-				});
-		
-
+		mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
+		//
+		mFragStackListening = true;
 	}
 
 	
@@ -269,73 +354,87 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		if (showDrawerToggle) mActionBar.setTitle(getString(R.string.default_view_title));
 	}
 
-
 	/***
-	 * Catch the interface callback via implementing {@link IDrawerListItem} so that we can launch the respective fragment based on
-	 * what was on the Navigation Panel's listview item that was tapped.
+	 * Event handler when the item in Drawer is tapped
+	 * @param event
 	 */
-	@Override
-	public void cbDrawerListItemClick(int position, DrawerRowEntry dre) {
-		Utils.LogIt(TAG, String.format("cbDrawerListItemClick(...) - position = %d; actionBarText = %s", position, dre.getDrawerText()));
-		selectItem(position, dre);
+	@Subscribe
+	public void onDrawerItemClicked(DrawerItemClickEvent event){
+		final DrawerRowEntry dre = event.getDREntry();
+		final int position = event.getDREntryPosition();
+		Utils.LogIt(TAG, String.format("onDrawerItemClicked(...) - position = %d; actionBarText = %s", 
+				position, 
+				dre.getDrawerText()));
+		selectItem(position, dre);		
+	}
+	
+	/***
+	 * Pulls in the user id's account from a site that was long-pressed within the drawer.
+	 * 
+	 * Event receiver for when {@link ie.t0mm13b.droidstackmk2.drawer.StackExchangeUserDialog} is either cancelled 
+	 * or user id submitted, {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent#getIsCancelled()} or
+	 * {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent#getStackExchangeUserId()}
+	 * 
+	 * @param event
+	 * @see {@link ie.t0mm13b.droidstackmk2.events.StackExchangeUserDialogEvent}
+	 * @see {@link getAssociatedSites()}
+	 */
+	@Subscribe
+	public void onStackExchangeUserDialog(StackExchangeUserDialogEvent event){
+		if (event.getIsCancelled()){
+			Utils.LogIt(TAG, String.format("onStackExchangeUserDialog(...) - User cancelled"));
+			return;
+		}
+		final String seUserId = event.getStackExchangeUserId();
+		final DrawerRowEntry dre = event.getDrawerItem();
+		final int position = event.getDrawerPosition();
+		// Now we have the account number....
+		Utils.LogIt(TAG, String.format("onStackExchangeUserDialog(...) - seUserId = %s", seUserId));
+		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
+
+		// Ok, now the user id is picked and returned back, we need to pull that in!
+		final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
+		users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
+				"", 
+				"", 
+				"", 
+				"", 
+				SortOrder.Desc, 
+				"", 
+				"", 
+				SortType.Reputation,
+				new Callback<CommonSEWrapper<User>>(){
+
+					@Override
+					public void failure(RetrofitError arg0) {
+						MenuItemCompat.setActionView(mOptionsRefresh, null);
+						Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
+					}
+
+					@Override
+					public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
+						Utils.LogIt(TAG,  "onStackExchangeUserDialog::success(...) - " + argCSEWrapper.toString());
+						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
+							User selectdUser = argCSEWrapper.itemsList.get(0);
+							Utils.LogIt(TAG,  "onStackExchangeUserDialog(...)::success(...) - User = " + selectdUser.toString());
+							mUserInfo.setUserInfo(selectdUser);
+							getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
+						}
+						MenuItemCompat.setActionView(mOptionsRefresh, null);	
+					}
+			
+		});
 	}
 
 	/***
-	 * Catch the interface callback so that we can launch the dialog fragment to prompt user to insert their appropriately selected
-	 * StackExchange site in order to obtain their flair etc and to pull in associated accounts if necessary.
+	 * pulls in teh associated accounts across the StackExchange network and trims the initial excess sites from teh drawer
+	 * and re-sorts them based on order of rep points.
+	 * 
+	 * @param userAPI
+	 * @param userInfo
+	 * @param position
+	 * @param dre
 	 */
-	@Override
-	public void cbObtainUserId(final int position, final DrawerRowEntry dre) {
-		Utils.LogIt(TAG, String.format("cbObtainUserId: dre = " + dre.toString()));
-		// Check against the shared prefs for that site info?
-		DrawerUserDialogFragment dlg = DrawerUserDialogFragment.newInstance(dre);
-		dlg.setIDrawerUserPickerDialog(new IDrawerUserPickerDialog(){
-
-			@Override
-			public void cbSelectedSEAccount(String seUserId) {
-				// TODO Auto-generated method stub
-				// Now we have the account number....
-				Utils.LogIt(TAG, String.format("dlg::cbSelectedSEAccount(...) - seUserId = %s", seUserId));
-				MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
-
-				// Ok, now the user id is picked and returned back, we need to pull that in!
-				final IUsers users = RetrofitClient.getInstance().getRESTfulClient().create(IUsers.class);
-				users.getUsersById(seUserId, dre.getSiteInfo().apiSiteParameter, 
-						"", 
-						"", 
-						"", 
-						"", 
-						SortOrder.Desc, 
-						"", 
-						"", 
-						SortType.Reputation,
-						new Callback<CommonSEWrapper<User>>(){
-
-							@Override
-							public void failure(RetrofitError arg0) {
-								MenuItemCompat.setActionView(mOptionsRefresh, null);
-								Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getUsersById(...) failure!", Toast.LENGTH_SHORT);
-							}
-
-							@Override
-							public void success(CommonSEWrapper<User> argCSEWrapper, Response argResponse) {
-								Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - " + argCSEWrapper.toString());
-								if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() == 1){
-									User selectdUser = argCSEWrapper.itemsList.get(0);
-									Utils.LogIt(TAG,  "users.getUsersById(...)::success(...) - User = " + selectdUser.toString());
-									mUserInfo.setUserInfo(selectdUser);
-									getAssociatedSites(users, mUserInfo.getUserInfo(), position, dre);
-								}
-								MenuItemCompat.setActionView(mOptionsRefresh, null);	
-							}
-					
-				});
-			}
-			
-		});
-		dlg.show(getSupportFragmentManager(), "userPickrDialog");
-	}	
-	
 	private void getAssociatedSites(final IUsers userAPI, final User userInfo, final int position, final DrawerRowEntry dre){
 		MenuItemCompat.setActionView(mOptionsRefresh, R.layout.actionbar_indeterminate_progress);
 		userAPI.getAssociatedAccountsByAccountId(
@@ -346,7 +445,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 
 					@Override
 					public void failure(RetrofitError argRetrofitError) {
-						// TODO Auto-generated method stub
 						MenuItemCompat.setActionView(mOptionsRefresh, null);
 						Toast.makeText(DroidStackMk2App.getAppContext(), "Oops, getAssociatedAccountsByAccountId(...) failure!", Toast.LENGTH_SHORT);
 					}
@@ -354,6 +452,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 					@Override
 					public void success(CommonSEWrapper<NetworkUser> argCSEWrapper, Response argResponse) {
 						DrawerRowEntry newDRE = null;
+						List<DrawerRowEntry> dreList = new ArrayList<DrawerRowEntry>();
 						if (argCSEWrapper != null && argCSEWrapper.itemsList != null && argCSEWrapper.itemsList.size() > 0){
 							mFragmentDrawer.getDrawerAdapter().clearAll();
 							for (NetworkUser nw : argCSEWrapper.itemsList){
@@ -368,16 +467,22 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 												assocSite.apiSiteParameter);
 										dreAssoc.setSiteInfo(assocSite);
 										dreAssoc.setNetworkUserInfo(nw);
+										dreList.add(dreAssoc); // Add to temporary list!
 										if (dre.equals(dreAssoc)){
 											// Yup! Longpressed on row matches this associated newly recreated entry, which will have the correct
 											// rep points etc
 											Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) - Found the intended target!");
 											newDRE = dreAssoc;
 										}
-										mFragmentDrawer.getDrawerAdapter().add(dreAssoc);										
 									}else{
 										Utils.LogIt(TAG, "getAssociatedAccountsByAccountId::success(...) assocSite is null! nw = " + nw.toString());
 									}
+								}
+							}
+							if (dreList.size() > 0){
+								Collections.sort(dreList, new DREComparator()); // Sort by reputation!
+								for (DrawerRowEntry dre : dreList){
+									mFragmentDrawer.getDrawerAdapter().add(dre);
 								}
 							}
 							mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();							
@@ -401,9 +506,6 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		//
 		frag = SEFragmentGeneric.newInstance(position, dre);
 		if (frag != null) {
-			
-			((SEFragmentGeneric)frag).registerFragmentNotify(this);
-
 			// Insert the fragment by replacing any existing fragment
 			FragmentTransaction transaction = mFragmentManager.beginTransaction();
 			transaction.replace(R.id.content_frame, frag);
@@ -419,27 +521,17 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			mActionBar.setTitle(dre.getDrawerText());
 			mDrawerLayout.closeDrawer(this.mDrawerFrameLayout);
 			mStackDRE.push(dre);
-			dumpStack();
 		}
 	}
 	
-	private void dumpStack(){
-		Utils.LogIt(TAG, "dumpStack *** ENTER ***");
-		for (DrawerRowEntry dre : mStackDRE){
-			Log.d(TAG, "dumpStack: dre = " + dre);
-		}
-		Utils.LogIt(TAG, "dumpStack *** LEAVE ***");
-	}
-
 	/***
-	 * This gets called from the fragment (we registered the listener in selectItem above!) and adjust the 
-	 * action bar title accordingly based on the fragment.
+	 * Event raised when the fragment has the chevron tapped to up the parent activity.
+	 * This is needed as it does not work proper after rotation
+	 * @param event
 	 */
-	@Override
-	public void cbFragmentFinished() {
-		// TODO Auto-generated method stub
-		Utils.LogIt(TAG, "cbFragmentFinished");
-//		dumpStack();
+	@Subscribe
+	public void onFragmentFinished(FragmentFinishedEvent event){
+		Utils.LogIt(TAG, "onFragmentFinished");
 		try{
 			mStackDRE.pop();
 			if (!mStackDRE.isEmpty()){
@@ -452,8 +544,8 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}catch(EmptyStackException eseEx){
 			mActionBar.setTitle(getString(R.string.default_view_title));
 		}
-
 	}
+
 	
 	/**
 	 * Test to show the refresh spinner on action bar.
@@ -580,6 +672,13 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		}
 	}
 
+	/***
+	 * Observable object that notifies the drawer when changes are made to either {@link com.stackexchange.api.objects.User} or
+	 * {@link com.stackexchange.api.objects.NetworkUser}
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
 	class DrawerUserSEInfo extends Observable{
 		private User mUserInfo;
 		private NetworkUser mNetworkUserInfo;
@@ -589,7 +688,7 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 		public void setUserInfo(User userInfo){
 			mUserInfo = userInfo;
 			setChanged();
-			notifyObservers(getUserInfo());
+			notifyObservers(getUserInfo()); // fire the observers (in this case drawer fragment will pick this up 
 		}
 		public NetworkUser getNetworkUser(){
 			return mNetworkUserInfo;
@@ -600,4 +699,39 @@ public class Droidstackmk2Main extends ActionBarActivity implements IDrawerListI
 			notifyObservers(getNetworkUser());
 		}
 	}
+	/***
+	 * Simple class to compare {@link ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry} for sorting based on reputation
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
+	class DREComparator implements Comparator<DrawerRowEntry>{
+
+		@Override
+		public int compare(DrawerRowEntry lhs, DrawerRowEntry rhs) {
+			NetworkUser nwLeft = lhs.getNetworkUserInfo();
+			NetworkUser nwRight = rhs.getNetworkUserInfo();
+			if (nwLeft != null && nwRight != null){
+				return nwRight.reputation - nwLeft.reputation;
+			}
+			return 0;
+		}
+		
+	}
+	
+	/***
+	 * Simple class to handle the fragment stack events
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
+	class FragmentStackListener implements FragmentManager.OnBackStackChangedListener{
+
+		@Override
+		public void onBackStackChanged() {
+			adjustActionBarToggle();
+		}
+		
+	}
+
 }
