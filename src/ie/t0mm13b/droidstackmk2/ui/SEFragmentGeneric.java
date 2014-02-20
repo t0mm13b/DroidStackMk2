@@ -10,6 +10,8 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -84,6 +86,12 @@ public class SEFragmentGeneric extends BaseFragment{
         	mPageTabStripAdapter = new PagingTabStripAdapter(getChildFragmentManager(), getActivity());
         	mViewPager.setAdapter(mPageTabStripAdapter);
         	mPageTabStrip.setViewPager(mViewPager);
+        	//mPageTabStrip.setBackground(new ColorDrawable(R.drawable.ab_stacked_solid_psts));
+        	mPageTabStrip.setBackgroundColor(Color.parseColor("#fff3f3f3")); //#ff000000"));
+//        	mPageTabStrip.setTextColor(Color.parseColor("#ffffffff")); //#ff000000"));
+        	mPageTabStrip.setIndicatorColorResource(R.color.ICSHoloDarkBlue);
+        	mPageTabStrip.setDividerColor(0xFF666666);
+//        	mPageTabStrip.setTabBackground(R.drawable.tab_indicator_ab_psts);
 //        	mPageTabStrip.setOnPageChangeListener(new OnPageChangeListener(){
 //
 //				@Override
