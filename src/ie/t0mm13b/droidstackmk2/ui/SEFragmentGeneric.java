@@ -129,6 +129,9 @@ public class SEFragmentGeneric extends BaseFragment{
     }
 
 
+    /*** 
+     * Restore the state
+     */
 	@Override
 	public void activityCreated(Bundle savedInstanceState) {
 		Utils.LogIt(TAG, "activityCreated(...)");
@@ -147,6 +150,10 @@ public class SEFragmentGeneric extends BaseFragment{
 			Utils.LogIt(TAG, "activityCreated(...) - savedInstanceState is null");
 		}
 	}
+	
+	/***
+	 * Save the state of drawer fragment
+	 */
 	@Override
 	public void saveInstanceState(Bundle outState) {
 		Utils.LogIt(TAG, "saveInstanceState(...)");

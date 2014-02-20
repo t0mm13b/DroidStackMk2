@@ -123,6 +123,9 @@ public class DrawerFragment extends Fragment implements Observer{
 		outState.putParcelable(DFKEY_NWUSERINFO, aNetworkUserInfo);
 	}
 	
+	/***
+	 * Restore the state
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState){
 		super.onActivityCreated(savedInstanceState);
@@ -136,6 +139,13 @@ public class DrawerFragment extends Fragment implements Observer{
 			if (aNetworkUserInfo != null) setNetworkUserInfo(aNetworkUserInfo);
 		}
 	}
+	/***
+	 * Simple method to adjust the {@link com.stackexchange.api.objects.User} on drawer layout itself
+	 * 
+	 * @param usr 
+	 * 
+	 * @see  {@link com.stackexchange.api.objects.User}
+	 */
 	private void setUserInfo(User usr){
 		RoundedTransformation rt = new RoundedTransformation(10, 1);
 		if (usr.profileImage != null && usr.profileImage.length() > 0){
@@ -153,6 +163,13 @@ public class DrawerFragment extends Fragment implements Observer{
 		mTVUserBadgeSilver.setText(String.valueOf(usr.badges.silver));
 		mTVUserBadgeBronze.setText(String.valueOf(usr.badges.bronze));
 	}
+	/***
+	 * Simple method to adjust the {@link com.stackexchange.api.objects.NetworkUser} on drawer layout itself
+	 * 
+	 * @param nwUsr
+	 * 
+	 * @see {@link com.stackexchange.api.objects.NetworkUser}
+	 */
 	private void setNetworkUserInfo(NetworkUser nwUsr){
 		String strRep = String.format(getString(R.string.SEUserRep_fmt), NumberFormat.getNumberInstance(Locale.US).format(nwUsr.reputation));
 		mTVUserRepCount.setText(strRep);

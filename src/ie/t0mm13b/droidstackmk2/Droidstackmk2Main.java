@@ -242,6 +242,9 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 	}
 	
+	/***
+	 * De register any handlers as we're going into pause state
+	 */
 	@Override
 	protected void onPause(){
 		super.onPause();
@@ -259,6 +262,9 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 	}
 	
+	/***
+	 * Re register the handlers as we're alive n kicking
+	 */
 	@Override
 	protected void onResume(){
 		super.onResume();
@@ -276,6 +282,9 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 	}
 	
+	/***
+	 * Save the state of play here, could be for rotation...
+	 */
 	@Override
 	protected void onSaveInstanceState(Bundle outState){
 		super.onSaveInstanceState(outState);
@@ -517,7 +526,7 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	
 	/***
 	 * Event raised when the fragment has the chevron tapped to up the parent activity.
-	 * 
+	 * This is needed as it does not work proper after rotation
 	 * @param event
 	 */
 	@Subscribe
@@ -663,6 +672,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 	}
 
+	/***
+	 * Observable object that notifies the drawer when changes are made to either {@link com.stackexchange.api.objects.User} or
+	 * {@link com.stackexchange.api.objects.NetworkUser}
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
 	class DrawerUserSEInfo extends Observable{
 		private User mUserInfo;
 		private NetworkUser mNetworkUserInfo;
@@ -672,7 +688,7 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		public void setUserInfo(User userInfo){
 			mUserInfo = userInfo;
 			setChanged();
-			notifyObservers(getUserInfo());
+			notifyObservers(getUserInfo()); // fire the observers (in this case drawer fragment will pick this up 
 		}
 		public NetworkUser getNetworkUser(){
 			return mNetworkUserInfo;
@@ -683,6 +699,12 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			notifyObservers(getNetworkUser());
 		}
 	}
+	/***
+	 * Simple class to compare {@link ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry} for sorting based on reputation
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
 	class DREComparator implements Comparator<DrawerRowEntry>{
 
 		@Override
@@ -696,6 +718,13 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		}
 		
 	}
+	
+	/***
+	 * Simple class to handle the fragment stack events
+	 * 
+	 * @author t0mm13b
+	 *
+	 */
 	class FragmentStackListener implements FragmentManager.OnBackStackChangedListener{
 
 		@Override
