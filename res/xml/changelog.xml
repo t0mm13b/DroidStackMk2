@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog>
+    <release version="0.1" versioncode="1" summary="Git commits" date="20/01/2014">
+        <change>Overall working demo</change>
+        <change>TODO: Style TabStrip</change>
+        <change>TODO: Attributions</change>
+        <change>TODO: Preference settings</change>
+    </release>    
+</changelog>

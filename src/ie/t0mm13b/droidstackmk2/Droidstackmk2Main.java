@@ -21,6 +21,8 @@ import java.util.Stack;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.inscription.ChangeLogDialog;
+import com.inscription.WhatsNewDialog;
 import com.squareup.otto.Subscribe;
 import com.stackexchange.api.objects.CommonSEWrapper;
 import com.stackexchange.api.objects.Enums.SiteState;
@@ -170,7 +172,8 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			mFragmentManager.addOnBackStackChangedListener(mFragStackListnr);
 			mFragStackListening = true;
 		}
-
+		WhatsNewDialog wnd = new WhatsNewDialog(this);
+		wnd.show();
 	}
 
 	@Override
@@ -223,6 +226,10 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		case R.id.menu_search:
 			//mOptionsMenu.setGroupVisible(0, false);
 			mOptionsSearch.expandActionView();
+			return true;
+		case R.id.menu_changelog:
+			final ChangeLogDialog changeLogDialog = new ChangeLogDialog(this);
+			changeLogDialog.show();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

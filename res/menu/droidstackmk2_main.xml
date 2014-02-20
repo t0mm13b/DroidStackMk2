@@ -14,11 +14,16 @@
          android:title="@string/action_menu_refresh"
          android:orderInCategory="101"
          droidstackmk2:showAsAction="ifRoom"/>
-    
     <item
         android:id="@+id/menu_settings"
         android:title="@string/action_menu_settings"
         android:orderInCategory="102"
         droidstackmk2:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_changelog"
+        android:title="@string/action_menu_changelog"
+        android:orderInCategory="103"
+        droidstackmk2:showAsAction="never" />
 
 </menu>
