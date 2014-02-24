@@ -83,7 +83,7 @@ public class SEFragmentGeneric extends BaseFragment{
 				.resize(96, 96)
 				.centerInside()
 				.into(mIVSelectedSite);
-        	mPageTabStripAdapter = new PagingTabStripAdapter(getChildFragmentManager(), getActivity());
+        	mPageTabStripAdapter = new PagingTabStripAdapter(getChildFragmentManager(), getActivity(), mDrawerEntry);
         	mViewPager.setAdapter(mPageTabStripAdapter);
         	mPageTabStrip.setViewPager(mViewPager);
         	//mPageTabStrip.setBackground(new ColorDrawable(R.drawable.ab_stacked_solid_psts));
@@ -173,17 +173,15 @@ public class SEFragmentGeneric extends BaseFragment{
     	private static final String TAG = "PagingTabStripAdapter";
     	private String[] mTabTitles;
     	private FragmentManager mFragManager;
-    	private List<String> mListFrags = new ArrayList<String>();
     	private Context mContext;
+    	private DrawerRowEntry mSelectedDRE;
     	
-		public PagingTabStripAdapter(FragmentManager fm, Context ctxt) {
+		public PagingTabStripAdapter(FragmentManager fm, Context ctxt, DrawerRowEntry dre) {
 			super(fm);
 			mFragManager = fm;
 			mContext = ctxt;
 			mTabTitles = mContext.getResources().getStringArray(R.array.se_fragment_titles);
-			mListFrags.add(SEFragment_Questions.class.getName());
-			mListFrags.add(SEFragment_FeaturedQuestions.class.getName());
-			mListFrags.add(SEFragment_UnansweredQuestions.class.getName());
+			mSelectedDRE = dre;
 		}
 		
 		@Override
@@ -196,8 +194,24 @@ public class SEFragmentGeneric extends BaseFragment{
 			String fragId = makeFragmentName(R.id.pager, argPosition);
 			Fragment frag = mFragManager.findFragmentByTag(fragId);
 			if (frag == null){
+				Bundle args = new Bundle();
+				args.putParcelable(Utils.SE_GENERIC_FRAG_ARGS_DRAWER_ROW_ITEM_KEY, mSelectedDRE);
+				switch(argPosition){
+				case 0 :
+					args.putInt(Utils.SE_GENERIC_FRAG_ARGS_TYPEOFQUESTIONS_KEY, Utils.FRAGTYPE_QUESTIONS);
+					frag = SEFragment_Questions.newInstance(args);
+					break;
+				case 1 : 
+					args.putInt(Utils.SE_GENERIC_FRAG_ARGS_TYPEOFQUESTIONS_KEY, Utils.FRAGTYPE_FEATURED_QUESTIONS);
+					frag = SEFragment_Questions.newInstance(args);
+					break;
+				case 2 : 
+					args.putInt(Utils.SE_GENERIC_FRAG_ARGS_TYPEOFQUESTIONS_KEY, Utils.FRAGTYPE_UNANSWERED_QUESTIONS);
+					frag = SEFragment_Questions.newInstance(args);
+					break;
+				}
 //				Utils.LogIt(TAG, "getItem(...) - frag is null...");
-				frag = Fragment.instantiate(mContext, mListFrags.get(argPosition));
+//				frag = Fragment.instantiate(mContext, mListFrags.get(argPosition), args);
 			}
 			return frag;
 		}

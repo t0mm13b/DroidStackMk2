@@ -47,6 +47,9 @@
 	    <item>Featured Questions</item>
 	    <item>Unanswered Questions</item>
 	</string-array>
+	<string name="fragGenQuestionsNoData">No data</string>
+	<!-- Generic fragment for questions -->
+	<string name="fragGenQuestionTypeTitle">TypeOf Question</string>
 	<!-- All Questions fragment -->
 	<string name="fragAllQuestionsTitle">All Questions</string>
 	<!-- Featured Questions fragment -->
