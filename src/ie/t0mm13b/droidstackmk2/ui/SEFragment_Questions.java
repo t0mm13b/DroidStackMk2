@@ -1,9 +1,23 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+import com.stackexchange.api.objects.CommonSEWrapper;
+import com.stackexchange.api.objects.Enums.SortOrder;
+import com.stackexchange.api.objects.Enums.SortType;
+import com.stackexchange.api.objects.NetworkUser;
+import com.stackexchange.api.objects.Question;
+import com.stackexchange.api.objects.Site;
+import com.stackexchange.api.restapi.IQuestions;
+import com.stackexchange.api.restapi.ISites;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import ie.t0mm13b.droidstackmk2.R;
 import ie.t0mm13b.droidstackmk2.drawer.DrawerRowEntry;
+import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +43,7 @@ import android.widget.TextView;
 public class SEFragment_Questions extends Fragment{
 	private static final String TAG = "SEFragment_Questions";
 	private DrawerRowEntry mSelectedSite;
+	private int mTypeOfQuestions;
 	@InjectView(R.id.flGeneric_Progress) FrameLayout mFLProgress;
 	@InjectView(R.id.flGeneric_Content) FrameLayout mFLGenericContent;
 	@InjectView(R.id.pgGeneric) ProgressBar mPBLoading;
@@ -75,6 +90,7 @@ public class SEFragment_Questions extends Fragment{
 					mTVTypeOfQuestion.setText(getActivity().getString(R.string.fragUnansweredQuestionsTitle));
 					break;
 				}
+				mTypeOfQuestions = typeOfQuestion;
 			}
 		}else{
 			Utils.LogIt(TAG, "onCreateView(...) - args is null!");
@@ -104,9 +120,38 @@ public class SEFragment_Questions extends Fragment{
 		}
 		@Override
 		protected String doInBackground(String... arg0) {
+			IQuestions questions =  RetrofitClient.getInstance().getRESTfulClient().create(IQuestions.class);
+			int nPageCount = 1;
+			CommonSEWrapper<Question> siteQuestions;
 			try{
-				for (int nLoopy = 0; nLoopy < 10; nLoopy++){
-					Thread.sleep(500);
+				switch(mTypeOfQuestions){
+				case 0 :
+					questions.getAllQuestions(
+							mSelectedSite.getSiteInfo().apiSiteParameter, // siteId
+							String.valueOf(nPageCount), // pageNumber
+							String.valueOf(RetrofitClient.SE_MAX_PAGESIZE), // pageSize
+							"", // fromDate
+							"", // toDate
+							SortOrder.Desc, // orderOfSort
+							"", // minDate
+							"", // maxDate
+							SortType.Activity, // typeOfSort
+							"", // tagged
+							new Callback<CommonSEWrapper<Question>>(){
+
+								@Override
+								public void failure(RetrofitError argRetrofitError) {
+									// TODO Auto-generated method stub
+									
+								}
+
+								@Override
+								public void success(CommonSEWrapper<Question> argCSEWrapper, Response argResponse) {
+									// TODO Auto-generated method stub
+									
+								}
+					});
+					break;
 				}
 			}catch(InterruptedException intEx){
 			}catch(Exception eX){

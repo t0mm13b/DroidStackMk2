@@ -67,7 +67,7 @@ public interface IQuestions {
 			@Query("max") String maxDate,
 			@Query("sort") SortType typeOfSort,
 			@Query("tagged") String tagged,
-			Callback<List<Question>> cbAllQuestions);
+			Callback<CommonSEWrapper<Question>> cbAllQuestions);
 	
 	/***
 	 * Returns the questions identified in {ids}.

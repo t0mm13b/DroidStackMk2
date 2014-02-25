@@ -1,22 +1,20 @@
 package ie.t0mm13b.droidstackmk2.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.astuetz.PagerSlidingTabStrip;
 import com.squareup.picasso.Picasso;
+import com.viewpagerindicator.TabPageIndicator;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +39,8 @@ public class SEFragmentGeneric extends BaseFragment{
 	private DrawerRowEntry mDrawerEntry = null;
 	private int mDrawerPosition;
 	@InjectView(R.id.pager) ViewPager mViewPager;
-	@InjectView(R.id.pts) PagerSlidingTabStrip mPageTabStrip;
+	@InjectView(R.id.jwTPI) TabPageIndicator mPageTabStrip;
+//	@InjectView(R.id.pts) PagerSlidingTabStrip mPageTabStrip;
 	@InjectView(R.id.ivSelectedSite) ImageView mIVSelectedSite;
 	private PagingTabStripAdapter mPageTabStripAdapter;
 	
@@ -84,13 +83,18 @@ public class SEFragmentGeneric extends BaseFragment{
 				.centerInside()
 				.into(mIVSelectedSite);
         	mPageTabStripAdapter = new PagingTabStripAdapter(getChildFragmentManager(), getActivity(), mDrawerEntry);
+        	
         	mViewPager.setAdapter(mPageTabStripAdapter);
         	mPageTabStrip.setViewPager(mViewPager);
+        	
+//        	mPageTabStrip.setT
+//        	mPageTabStrip.se.setViewPager(mViewPager);
         	//mPageTabStrip.setBackground(new ColorDrawable(R.drawable.ab_stacked_solid_psts));
-        	mPageTabStrip.setBackgroundColor(Color.parseColor("#fff3f3f3")); //#ff000000"));
+//        	mPageTabStrip.setBackgroundColor(R.color.black); //#ff000000"));
 //        	mPageTabStrip.setTextColor(Color.parseColor("#ffffffff")); //#ff000000"));
-        	mPageTabStrip.setIndicatorColorResource(R.color.ICSHoloDarkBlue);
-        	mPageTabStrip.setDividerColor(0xFF666666);
+//        	mPageTabStrip.setIndicatorColorResource(R.color.ICSHoloDarkBlue);
+//        	mPageTabStrip.setDividerColor(Color.parseColor("#fff3f3f3"));
+//        	mPageTabStrip.setUnderlineColor(R.color.ICSHoloDarkBlue);
 //        	mPageTabStrip.setTabBackground(R.drawable.tab_indicator_ab_psts);
 //        	mPageTabStrip.setOnPageChangeListener(new OnPageChangeListener(){
 //
@@ -224,4 +228,5 @@ public class SEFragmentGeneric extends BaseFragment{
 	        return "android:switcher:" + viewId + ":" + index;
 	    }
     }
+ 
 }
