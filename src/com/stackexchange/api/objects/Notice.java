@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /***
@@ -9,11 +12,14 @@ import com.google.gson.annotations.SerializedName;
  *
  * @see http://api.stackexchange.com/docs/types/notice
  */
-public class Notice {
+public class Notice implements Parcelable{
 	@SerializedName("body") public String body = "";
 	@SerializedName("creation_date") public long creationDate = -1;
 	@SerializedName("owner_user_id") public int ownerUserId = -1;
 
+	private Notice(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -65,5 +71,32 @@ public class Notice {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(body);
+		dest.writeLong(creationDate);
+		dest.writeInt(ownerUserId);
+	}
+	private void readFromParcel(Parcel src){
+		body = src.readString();
+		creationDate = src.readLong();
+		ownerUserId = src.readInt();
+	}
+	public static final Parcelable.Creator<Notice> CREATOR = new Parcelable.Creator<Notice>() {
+
+		@Override
+		public Notice createFromParcel(Parcel source) {
+			return new Notice(source);
+		}
+
+		@Override
+		public Notice[] newArray(int size) {
+			return new Notice[size];
+		}
+	};
 }

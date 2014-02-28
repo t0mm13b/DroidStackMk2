@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /***
@@ -9,11 +12,14 @@ import com.google.gson.annotations.SerializedName;
  *
  * @see http://api.stackexchange.com/docs/types/migration-info
  */
-public class MigrationInfo {
+public class MigrationInfo implements Parcelable{
 	@SerializedName("on_date") public long onDate = -1;
 	@SerializedName("other_site") public Site otherSite;
 	@SerializedName("question_id") public int questionId = -1;
 
+	private MigrationInfo(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -65,5 +71,32 @@ public class MigrationInfo {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeLong(onDate);
+		dest.writeParcelable(otherSite, flags);
+		dest.writeLong(questionId);
+	}
+	private void readFromParcel(Parcel src){
+		onDate = src.readLong();
+		otherSite = src.readParcelable(Site.class.getClassLoader());
+		questionId = src.readInt();
+	}
+	public static final Parcelable.Creator<MigrationInfo> CREATOR = new Parcelable.Creator<MigrationInfo>() {
+
+		@Override
+		public MigrationInfo createFromParcel(Parcel source) {
+			return new MigrationInfo(source);
+		}
+
+		@Override
+		public MigrationInfo[] newArray(int size) {
+			return new MigrationInfo[size];
+		}
+	};
 }

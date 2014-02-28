@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.PostType;
 
@@ -12,11 +15,11 @@ import com.stackexchange.api.objects.Enums.PostType;
  * @author t0mm13b
  *
  */
-public class Comment {
+public class Comment implements Parcelable{
 	@SerializedName("body") public String body = "";
 	@SerializedName("body_markdown") public String bodyMarkdown = "";
 	@SerializedName("comment_id") public int commentId = -1;
-	@SerializedName("creation_date") public int creationDate = -1;
+	@SerializedName("creation_date") public long creationDate = -1;
 	@SerializedName("edited") public boolean isEdited = false;
 	@SerializedName("link") public String link = "";
 	@SerializedName("owner") public ShallowUser owner;
@@ -25,6 +28,10 @@ public class Comment {
 	@SerializedName("reply_to_user") public ShallowUser replyToUser;
 	@SerializedName("score") public int score = -1;
 
+	private Comment(Parcel in){
+		readFromParcel(in);
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -36,7 +43,8 @@ public class Comment {
 		result = prime * result
 				+ ((bodyMarkdown == null) ? 0 : bodyMarkdown.hashCode());
 		result = prime * result + commentId;
-		result = prime * result + creationDate;
+		result = prime * result
+				+ (int) (creationDate ^ (creationDate >>> 32));
 		result = prime * result + (isEdited ? 1231 : 1237);
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
@@ -130,5 +138,48 @@ public class Comment {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(body);
+		dest.writeString(bodyMarkdown);
+		dest.writeInt(commentId);
+		dest.writeLong(creationDate);
+		dest.writeInt(isEdited ? 1 : 0);
+		dest.writeString(link);
+		dest.writeParcelable(owner, flags);
+		dest.writeInt(postId);
+		dest.writeInt(typeOfPost.ordinal());
+		dest.writeParcelable(replyToUser, flags);
+		dest.writeInt(score);
+	}
+	private void readFromParcel(Parcel src){
+		body = src.readString();
+		bodyMarkdown = src.readString();
+		commentId = src.readInt();
+		creationDate = src.readLong();
+		isEdited = ((src.readInt() == 1) ? true : false);
+		link = src.readString();
+		owner = src.readParcelable(ShallowUser.class.getClassLoader());
+		postId = src.readInt();
+		int nTypeOfPost = src.readInt();
+		typeOfPost = (nTypeOfPost == -1) ? PostType.Unknown : PostType.values()[nTypeOfPost];
+		replyToUser = src.readParcelable(ShallowUser.class.getClassLoader());
+		score = src.readInt();
+	}
+	public static final Parcelable.Creator<Comment> CREATOR = new Parcelable.Creator<Comment>() {
+
+		@Override
+		public Comment createFromParcel(Parcel source) {
+			return new Comment(source);
+		}
+
+		@Override
+		public Comment[] newArray(int size) {
+			return new Comment[size];
+		}
+	};
 }
