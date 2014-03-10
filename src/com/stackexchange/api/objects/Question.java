@@ -298,15 +298,16 @@ public class Question implements Parcelable{
 		List<Answer> tmpListAnswers = new ArrayList<Answer>();
 		List<String> tmpListStrings = new ArrayList<String>();
 		List<Comment> tmpListComments = new ArrayList<Comment>();
+		String sEmptyString = "";
 		dest.writeInt(acceptedAnswer);
 		dest.writeInt(answerCount);
 		dest.writeTypedList((listAnswers == null) ? tmpListAnswers : listAnswers);
-		dest.writeString(body);
+		dest.writeString(body == null ? sEmptyString : body);
 		dest.writeInt(bountyAmount);
 		dest.writeLong(bountyClosesDate);
 		dest.writeInt(closeVoteCount);
 		dest.writeLong(closedDate);
-		dest.writeString(closedReason);
+		dest.writeString(closedReason == null ? sEmptyString : closedReason);
 		dest.writeTypedList((listComments == null) ? tmpListComments : listComments);
 		dest.writeLong(communityOwnedDate);
 		dest.writeLong(creationDate);
@@ -318,6 +319,7 @@ public class Question implements Parcelable{
 		dest.writeLong(lastEditDate);
 		dest.writeString(link);
 		dest.writeLong(lockedDate);
+		// 3 potential nulls here?!
 		dest.writeParcelable(migratedFrom, flags);
 		dest.writeParcelable(migratedTo, flags);
 		dest.writeParcelable(notice, flags);

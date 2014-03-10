@@ -150,7 +150,7 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			//
 			if (!RetrofitClient.IsClientReady()){
 				RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
-				RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
+				RetrofitClient.getInstance().SetLogging(LogLevel.FULL);
 				//
 				new AsyncFetchSites().execute();
 			}

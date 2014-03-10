@@ -1,0 +1,78 @@
+<ie.t0mm13b.droidstackmk2.questions.QuestionView
+	xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/qvLayout"
+	android:layout_width="match_parent" android:layout_height="match_parent">
+
+	<RelativeLayout android:id="@+id/questionRL"
+		android:layout_width="wrap_content" android:layout_height="wrap_content">
+		<RelativeLayout android:id="@+id/qliRLIndicators"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_centerVertical="true">
+
+			<TextView android:id="@+id/tvNbrVotes" android:layout_width="30dp"
+				android:layout_height="wrap_content" android:text="@string/qli_DefaultCountTitle"
+				android:padding="2dp" android:textSize="9sp"
+				android:gravity="center" />
+
+			<TextView android:id="@+id/tvNbrAnswers"
+				android:layout_width="30dp" android:layout_height="wrap_content"
+				android:text="@string/qli_DefaultCountTitle" android:padding="2dp"
+				android:layout_toRightOf="@+id/tvNbrVotes" 
+				android:textSize="9sp" 
+				android:gravity="center"/>
+
+<!-- 			<TextView android:id="@+id/tvNbrViews" android:layout_width="30dp" -->
+<!-- 				android:layout_height="wrap_content" android:text="@string/qli_DefaultCountTitle" -->
+<!-- 				android:padding="2dp" android:layout_toRightOf="@+id/tvNbrAnswers" -->
+<!-- 				android:textSize="9sp"  -->
+<!-- 				android:gravity="center"/> -->
+
+		</RelativeLayout>
+		<RelativeLayout android:id="@+id/qliRLQuestionLayout"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_toRightOf="@+id/qliRLIndicators" android:padding="5dp">
+			<RelativeLayout android:id="@+id/qliRLQuestion"
+				android:layout_width="match_parent" android:layout_height="wrap_content">
+
+				<TextView android:id="@+id/tvQuestion"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:ellipsize="marquee" android:text="@string/qli_DefaultQuestionTitle"
+					android:textSize="11sp" />
+
+			</RelativeLayout>
+			<RelativeLayout android:id="@+id/qliRLQuestionTagsEtc"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:layout_below="@+id/qliRLQuestion">
+
+				<TextView android:id="@+id/tvTagOne" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/qli_DefaultTagTitle"
+					android:ellipsize="marquee" android:layout_margin="2dp" android:padding="5dp"
+					android:textSize="9sp" android:visibility="invisible"/>
+				<TextView android:id="@+id/tvTagTwo" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/qli_DefaultTagTitle"
+					android:ellipsize="marquee" android:layout_margin="2dp" 
+					android:layout_toRightOf="@+id/tvTagOne" android:padding="5dp"
+					android:textSize="9sp" android:visibility="invisible"/>
+				<TextView android:id="@+id/tvTagThree"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:text="@string/qli_DefaultTagTitle" android:ellipsize="marquee"
+					android:layout_margin="2dp"  android:layout_toRightOf="@+id/tvTagTwo"
+					android:padding="5dp"
+					android:textSize="9sp" android:visibility="invisible"/>
+				<TextView android:id="@+id/tvTagFour" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/qli_DefaultTagTitle"
+					android:ellipsize="marquee" android:layout_margin="2dp"
+					android:layout_toRightOf="@+id/tvTagThree" 
+					android:padding="5dp"
+					android:textSize="9sp" android:visibility="invisible"/>
+				<TextView android:id="@+id/tvTagFive" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/qli_DefaultTagTitle"
+					android:ellipsize="marquee" android:layout_margin="2dp"
+					android:layout_toRightOf="@+id/tvTagFour" 
+					android:padding="5dp"
+					android:textSize="9sp" android:visibility="invisible"/>
+
+			</RelativeLayout>
+		</RelativeLayout>
+	</RelativeLayout>
+
+</ie.t0mm13b.droidstackmk2.questions.QuestionView>

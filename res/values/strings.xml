@@ -55,5 +55,9 @@
 	<!-- Featured Questions fragment -->
 	<string name="fragFeaturedQuestionsTitle">Featured Questions</string>
 	<!-- Unanswered Questions -->
-	<string name="fragUnansweredQuestionsTitle">Unanswered Questions</string>	
+	<string name="fragUnansweredQuestionsTitle">Unanswered Questions</string>
+	<!-- Question List Item -->
+	<string name="qli_DefaultTagTitle">Tag</string>
+	<string name="qli_DefaultCountTitle">1</string>
+	<string name="qli_DefaultQuestionTitle">Some question here that is of interest to SE users</string>
 </resources>
