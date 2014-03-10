@@ -44,6 +44,8 @@ public class RetrofitClient {
 	//
 	private static OkHttpClient mOkHttpClient;
 	private static HttpResponseCache mHttpRespCache;
+	private static File mFileCache;
+	private static final String OKHTTP_CACHE_DIR = "OKHTTP";
 	//
 	private static RestAdapter mRestAdapterClient;
 	private static boolean isRestClientReady;
@@ -71,15 +73,23 @@ public class RetrofitClient {
 	public void Initialize(Client clientReplacement) throws IOException{
 		if (!isRestClientReady){
 			mOkHttpClient = new OkHttpClient();
-			File fCache;
-//			if (Utils.isExternalStorageWritable()){
-//				fCache = Environment.getDownloadCacheDirectory();
-//				Utils.LogIt(TAG, "Initialize(...) - using External Storage Cache Directory");
-//			}else{
-				fCache = DroidStackMk2App.getAppContext().getCacheDir();
+			if (Utils.isExternalStorageWritable()){
+				mFileCache = new File(DroidStackMk2App.getAppContext().getExternalCacheDir(), OKHTTP_CACHE_DIR);
+				Utils.LogIt(TAG, "Initialize(...) - using External Storage Cache Directory");
+			}else{
+				mFileCache = new File(DroidStackMk2App.getAppContext().getCacheDir(), OKHTTP_CACHE_DIR);
 				Utils.LogIt(TAG, "Initialize(...) - using Internal Storage Cache Directory");
-//			}
-			mHttpRespCache = new HttpResponseCache(fCache, 1024);
+			}
+			if (!mFileCache.exists()){
+				if (mFileCache.mkdirs()){
+					Utils.LogIt(TAG,  "Initialize(...) - mFileCache " + mFileCache.toString() + " created!");
+				}else{
+					Utils.LogIt(TAG,  "Initialize(...) - mFileCache " + mFileCache.toString() + " failed to get created!");
+				}
+			}else{
+				Utils.LogIt(TAG,  "Initialize(...) - mFileCache " + mFileCache.toString() + " already exists!");
+			}
+			mHttpRespCache = new HttpResponseCache(mFileCache, 1024);
 			mOkHttpClient.setOkResponseCache(mHttpRespCache);
 			GsonBuilder gb = new GsonBuilder(); 
 			gb.registerTypeAdapter(String.class, new StringConverter()); 
@@ -138,6 +148,19 @@ public class RetrofitClient {
 			rv = (bHttpRespCacheDeletd && bHttpRespCacheClosd);
 			if (rv){
 				Utils.LogIt(TAG, "Shutdown(...) - Closed HttpResponseCache and deleted");
+				if (mFileCache != null){
+					Utils.LogIt(TAG,  "Shutdown(...) - mFileCache " + mFileCache.toString());
+					if (mFileCache.exists()){
+						Utils.LogIt(TAG, "Shutdown(...) - mFileCache exists!");
+						if (mFileCache.delete()){
+							Utils.LogIt(TAG, "Shutdown(...) - mFileCache deleted!");
+						}else{
+							Utils.LogIt(TAG, "Shutdown(...) - mFileCache not deleted!");
+						}
+					}else{
+						Utils.LogIt(TAG, "Shutdown(...) - mFileCache not exists!");
+					}
+				}
 			}else{
 				Utils.LogIt(TAG, "Shutdown(...) - Failed to close HttpResponseCache and delete");
 			}

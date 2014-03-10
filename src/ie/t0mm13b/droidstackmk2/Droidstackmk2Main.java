@@ -633,7 +633,7 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		private static final String TAG = "AsyncFetchSites";
 		@Override
 		protected void onPreExecute(){
-			setProgressBarVisibility(true);
+			setSupportProgressBarVisibility(true);
 			mFragmentDrawer.getDrawerAdapter().clearAll();//.clearDrawerList();
 		}
 		@Override
@@ -691,12 +691,12 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 		protected void onProgressUpdate(Integer... progress){
 			int nProgress = progress[0];
 			Utils.LogIt(TAG, "onProgressUpdate(...) - nProgress = " + nProgress);
-			int progressTrack = ((Window.PROGRESS_END - Window.PROGRESS_START) / 100) * nProgress;
+			int progressTrack = (Window.PROGRESS_END - Window.PROGRESS_START) / 100 * nProgress;
 			setSupportProgress(progressTrack);
 		}
 		@Override
 		protected void onPostExecute(String result){
-			setProgressBarVisibility(false);
+			setSupportProgressBarVisibility(false);
 			mFragmentDrawer.getDrawerAdapter().notifyDataSetChanged();
 		}
 	}
