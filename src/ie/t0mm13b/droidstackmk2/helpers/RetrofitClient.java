@@ -44,7 +44,7 @@ public class RetrofitClient {
 	//
 	private static OkHttpClient mOkHttpClient;
 	private static HttpResponseCache mHttpRespCache;
-
+	//
 	private static RestAdapter mRestAdapterClient;
 	private static boolean isRestClientReady;
 	//
@@ -71,13 +71,13 @@ public class RetrofitClient {
 	public void Initialize(Client clientReplacement) throws IOException{
 		if (!isRestClientReady){
 			mOkHttpClient = new OkHttpClient();
-			File fCache = DroidStackMk2App.getAppContext().getCacheDir();
+			File fCache;
 //			if (Utils.isExternalStorageWritable()){
 //				fCache = Environment.getDownloadCacheDirectory();
 //				Utils.LogIt(TAG, "Initialize(...) - using External Storage Cache Directory");
 //			}else{
-//				fCache = DroidStackMk2App.getAppContext().getCacheDir();
-//				Utils.LogIt(TAG, "Initialize(...) - using Internal Storage Cache Directory");
+				fCache = DroidStackMk2App.getAppContext().getCacheDir();
+				Utils.LogIt(TAG, "Initialize(...) - using Internal Storage Cache Directory");
 //			}
 			mHttpRespCache = new HttpResponseCache(fCache, 1024);
 			mOkHttpClient.setOkResponseCache(mHttpRespCache);
@@ -111,6 +111,38 @@ public class RetrofitClient {
 	
 	public static boolean IsClientReady(){
 		return isRestClientReady;
+	}
+	
+	public boolean Shutdown(){
+		boolean rv = false;
+		isRestClientReady = false;
+		if (mHttpRespCache != null){
+			boolean bHttpRespCacheClosd = false;
+			boolean bHttpRespCacheDeletd = false;
+			try {
+				mHttpRespCache.close();
+				bHttpRespCacheClosd = true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (bHttpRespCacheClosd){
+				try {
+					mHttpRespCache.delete();
+					bHttpRespCacheDeletd = true;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			rv = (bHttpRespCacheDeletd && bHttpRespCacheClosd);
+			if (rv){
+				Utils.LogIt(TAG, "Shutdown(...) - Closed HttpResponseCache and deleted");
+			}else{
+				Utils.LogIt(TAG, "Shutdown(...) - Failed to close HttpResponseCache and delete");
+			}
+		}
+		return rv;
 	}
 	/***
 	 * Add in the API key dynamically alongside the other parameters at run-time.

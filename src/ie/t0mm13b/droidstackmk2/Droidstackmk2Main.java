@@ -55,6 +55,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -196,7 +197,22 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
         //searchViewAction.setOnQueryTextListener(this);
 		return true;
 	}
-	
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event){
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
+        	int nFragmentStackDepth = getSupportFragmentManager().getBackStackEntryCount();
+    		Utils.LogIt(TAG, "onKeyDown(...) - nFragmentStackDepth = " + String.valueOf(nFragmentStackDepth));
+    		if (nFragmentStackDepth == 0){
+	        	if (RetrofitClient.getInstance().Shutdown()){
+	        		Utils.LogIt(TAG, "onKeyDown(...) - Cleaned up!");
+	        		this.finish();
+	        		return true;
+	        	}
+    		}
+        }
+        return super.onKeyDown(keyCode, event);
+	}
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
