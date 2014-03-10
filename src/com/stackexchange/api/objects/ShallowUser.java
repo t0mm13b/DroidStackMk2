@@ -1,5 +1,8 @@
 package com.stackexchange.api.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.stackexchange.api.objects.Enums.UserType;
 
@@ -13,7 +16,7 @@ import com.stackexchange.api.objects.Enums.UserType;
  *
  * @see http://api.stackexchange.com/docs/types/shallow-user
  */
-public class ShallowUser {
+public class ShallowUser implements Parcelable{
 	@SerializedName("accept_rate") public int acceptRate = -1;
 	@SerializedName("display_name") public String displayName = "";
 	@SerializedName("link") public String link = "";
@@ -22,6 +25,9 @@ public class ShallowUser {
 	@SerializedName("user_id") public int userId = -1;
 	@SerializedName("user_type") public UserType userType = UserType.Unknown;
 
+	private ShallowUser(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -101,4 +107,41 @@ public class ShallowUser {
 		builder.append("]");
 		return builder.toString();
 	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(acceptRate);
+		dest.writeString(displayName);
+		dest.writeString(link);
+		dest.writeString(profileImage);
+		dest.writeInt(reputation);
+		dest.writeInt(userId);
+		dest.writeInt(userType.ordinal());
+	}
+	private void readFromParcel(Parcel src){
+		acceptRate = src.readInt();
+		displayName = src.readString();
+		link = src.readString();
+		profileImage = src.readString();
+		reputation = src.readInt();
+		userId = src.readInt();
+		int nUserType = src.readInt();
+		if (nUserType == -1) userType = UserType.Unknown;
+		else userType = UserType.values()[nUserType];
+	}
+	public static final Parcelable.Creator<ShallowUser> CREATOR = new Parcelable.Creator<ShallowUser>() {
+
+		@Override
+		public ShallowUser createFromParcel(Parcel source) {
+			return new ShallowUser(source);
+		}
+
+		@Override
+		public ShallowUser[] newArray(int size) {
+			return new ShallowUser[size];
+		}
+	};
 }

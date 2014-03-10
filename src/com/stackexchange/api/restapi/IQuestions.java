@@ -62,12 +62,12 @@ public interface IQuestions {
 			@Query("pagesize") String pageSize,
 			@Query("fromdate") String fromDate,
 			@Query("todate") String toDate,
-			@Query("order") SortOrder orderOfSort,
+			@Query("order") String orderOfSort,
 			@Query("min") String minDate,
 			@Query("max") String maxDate,
-			@Query("sort") SortType typeOfSort,
+			@Query("sort") String typeOfSort,
 			@Query("tagged") String tagged,
-			Callback<List<Question>> cbAllQuestions);
+			Callback<CommonSEWrapper<Question>> cbAllQuestions);
 	
 	/***
 	 * Returns the questions identified in {ids}.
@@ -330,10 +330,10 @@ public interface IQuestions {
 			@Query("pagesize") String pageSize,
 			@Query("fromdate") String fromDate,
 			@Query("todate") String toDate,
-			@Query("order") SortOrder orderOfSort,
+			@Query("order") String orderOfSort,
 			@Query("min") String minDate,
 			@Query("max") String maxDate,
-			@Query("sort") SortType typeOfSort,
+			@Query("sort") String typeOfSort,
 			Callback<CommonSEWrapper<Question>> cbFeaturedQuestions);
 	
 	/***
@@ -375,12 +375,12 @@ public interface IQuestions {
 			@Query("pagesize") String pageSize,
 			@Query("fromdate") String fromDate,
 			@Query("todate") String toDate,
-			@Query("order") SortOrder orderOfSort,
+			@Query("order") String orderOfSort,
 			@Query("min") String minDate,
 			@Query("max") String maxDate,
-			@Query("sort") SortType typeOfSort,
+			@Query("sort") String typeOfSort,
 			@Query("tagged") String tagged,
-			Callback<List<Question>> cbUnansweredQuestions);
+			Callback<CommonSEWrapper<Question>> cbUnansweredQuestions);
 	
 	/***
 	 * Returns questions which have received no answers.

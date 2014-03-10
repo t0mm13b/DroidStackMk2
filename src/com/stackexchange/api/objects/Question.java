@@ -1,6 +1,10 @@
 package com.stackexchange.api.objects;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -12,7 +16,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @see http://api.stackexchange.com/docs/types/question
  */
-public class Question {
+public class Question implements Parcelable{
 	@SerializedName("accepted_answer_id") public int acceptedAnswer = -1;
 	@SerializedName("answer_count") public int answerCount = -1;
 	@SerializedName("answers") public List<Answer> listAnswers;
@@ -46,6 +50,9 @@ public class Question {
 	@SerializedName("up_vote_count") public int upvoteCount = -1;
 	@SerializedName("view_count") public int viewCount = -1;
 
+	private Question(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -282,5 +289,95 @@ public class Question {
 		builder.append("]");
 		return builder.toString();
 	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		List<Answer> tmpListAnswers = new ArrayList<Answer>();
+		List<String> tmpListStrings = new ArrayList<String>();
+		List<Comment> tmpListComments = new ArrayList<Comment>();
+		String sEmptyString = "";
+		dest.writeInt(acceptedAnswer);
+		dest.writeInt(answerCount);
+		dest.writeTypedList((listAnswers == null) ? tmpListAnswers : listAnswers);
+		dest.writeString(body == null ? sEmptyString : body);
+		dest.writeInt(bountyAmount);
+		dest.writeLong(bountyClosesDate);
+		dest.writeInt(closeVoteCount);
+		dest.writeLong(closedDate);
+		dest.writeString(closedReason == null ? sEmptyString : closedReason);
+		dest.writeTypedList((listComments == null) ? tmpListComments : listComments);
+		dest.writeLong(communityOwnedDate);
+		dest.writeLong(creationDate);
+		dest.writeInt(deleteVoteCount);
+		dest.writeInt(downvoteCount);
+		dest.writeInt(favouriteCount);
+		dest.writeInt((isAnswered == true) ? 1 : 0);
+		dest.writeLong(lastActivityDate);
+		dest.writeLong(lastEditDate);
+		dest.writeString(link);
+		dest.writeLong(lockedDate);
+		// 3 potential nulls here?!
+		dest.writeParcelable(migratedFrom, flags);
+		dest.writeParcelable(migratedTo, flags);
+		dest.writeParcelable(notice, flags);
+		dest.writeParcelable(owner, flags);
+		dest.writeLong(protectedDate);
+		dest.writeInt(questionId);
+		dest.writeInt(reopenVoteCount);
+		dest.writeInt(score);
+		dest.writeStringList((listTags == null) ? tmpListStrings : listTags);
+		dest.writeString(title);
+		dest.writeInt(upvoteCount);
+		dest.writeInt(viewCount);
+	}
+	private void readFromParcel(Parcel src){
+		acceptedAnswer = src.readInt();
+		answerCount = src.readInt();
+		src.readTypedList(listAnswers, Answer.CREATOR);
+		body = src.readString();
+		bountyAmount = src.readInt();
+		bountyClosesDate = src.readLong();
+		closeVoteCount = src.readInt();
+		closedDate = src.readLong();
+		closedReason = src.readString();
+		src.readTypedList(listComments, Comment.CREATOR);
+		communityOwnedDate = src.readLong();
+		creationDate = src.readLong();
+		deleteVoteCount = src.readInt();
+		downvoteCount = src.readInt();
+		favouriteCount = src.readInt();
+		isAnswered = (src.readInt() == 1 ? true : false);
+		lastActivityDate = src.readLong();
+		lastEditDate = src.readLong();
+		link = src.readString();
+		lockedDate = src.readLong();
+		migratedFrom = src.readParcelable(MigrationInfo.class.getClassLoader());
+		migratedTo = src.readParcelable(MigrationInfo.class.getClassLoader());
+		notice = src.readParcelable(Notice.class.getClassLoader());
+		owner = src.readParcelable(ShallowUser.class.getClassLoader());
+		protectedDate = src.readLong();
+		questionId = src.readInt();
+		reopenVoteCount = src.readInt();
+		score = src.readInt();
+		src.readStringList(listTags);
+		title = src.readString();
+		upvoteCount = src.readInt();
+		viewCount = src.readInt();
+	}
+	public static final Parcelable.Creator<Question> CREATOR = new Parcelable.Creator<Question>() {
+
+		@Override
+		public Question createFromParcel(Parcel source) {
+			return new Question(source);
+		}
+
+		@Override
+		public Question[] newArray(int size) {
+			return new Question[size];
+		}
+	};
 	
 }

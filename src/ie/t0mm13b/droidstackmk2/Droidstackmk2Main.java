@@ -9,6 +9,8 @@ import ie.t0mm13b.droidstackmk2.helpers.EventBusProvider;
 import ie.t0mm13b.droidstackmk2.helpers.RetrofitClient;
 import ie.t0mm13b.droidstackmk2.helpers.Utils;
 import ie.t0mm13b.droidstackmk2.ui.SEFragmentGeneric;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -149,10 +151,14 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 			mFragmentDrawer = (DrawerFragment) mFragmentManager.findFragmentById(R.id.drawerFragment);
 			//
 			if (!RetrofitClient.IsClientReady()){
-				RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
-				RetrofitClient.getInstance().SetLogging(LogLevel.HEADERS);
-				//
-				new AsyncFetchSites().execute();
+				try{
+					RetrofitClient.getInstance().Initialize(null); //new FakeStackExchange());
+					RetrofitClient.getInstance().SetLogging(LogLevel.FULL);
+					//
+					new AsyncFetchSites().execute();
+				}catch(IOException ioEx){
+					Utils.LogIt(TAG, "onCreate(...) - IOException = " + ioEx.toString());
+				}
 			}
 			//
 			mFragmentMain = DroidStackMk2Fragment.newInstance(null);

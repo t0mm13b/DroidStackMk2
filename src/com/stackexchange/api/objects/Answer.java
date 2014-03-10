@@ -1,6 +1,10 @@
 package com.stackexchange.api.objects;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -10,7 +14,7 @@ import com.google.gson.annotations.SerializedName;
  *
  * @see http://api.stackexchange.com/docs/types/answer
  */
-public class Answer {
+public class Answer implements Parcelable {
 	@SerializedName("answer_id") public int answerId = -1;
 	@SerializedName("body") public String body = "";
 	@SerializedName("comments") public List<Comment> listComments;
@@ -29,6 +33,9 @@ public class Answer {
 	@SerializedName("title") public String title = "";
 	@SerializedName("up_vote_count") public int upvoteCount = -1;
 
+	private Answer(Parcel in){
+		readFromParcel(in);
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -170,5 +177,62 @@ public class Answer {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		List<String> tmpStringList = new ArrayList<String>();
+		List<Comment> tmpCommentList = new ArrayList<Comment>();
+		dest.writeInt(answerId);
+		dest.writeString(body);
+		dest.writeTypedList((listComments == null) ? tmpCommentList : listComments);
+		dest.writeLong(communityOwnedDate);
+		dest.writeLong(creationDate);
+		dest.writeInt(downvoteCount);
+		dest.writeInt((isAccepted == true) ? 1 : 0);
+		dest.writeLong(lastActivityDate);
+		dest.writeLong(lastEditDate);
+		dest.writeString(link);
+		dest.writeLong(lockedDate);
+		dest.writeParcelable(owner, flags);
+		dest.writeInt(questionId);
+		dest.writeInt(score);
+		dest.writeStringList((listTags == null) ? tmpStringList : listTags);
+		dest.writeString(title);
+		dest.writeInt(upvoteCount);		
+	}
+	private void readFromParcel(Parcel src){
+		answerId = src.readInt();
+		body = src.readString();
+		src.readTypedList(listComments, Comment.CREATOR);
+		communityOwnedDate = src.readLong();
+		creationDate = src.readLong();
+		downvoteCount = src.readInt();
+		isAccepted = (src.readInt() == 1) ? true : false;
+		lastActivityDate = src.readLong();
+		lastEditDate = src.readLong();
+		link = src.readString();
+		lockedDate = src.readLong();
+		owner = src.readParcelable(ShallowUser.class.getClassLoader());
+		questionId = src.readInt();
+		score = src.readInt();
+		src.readStringList(listTags);
+		title = src.readString();
+		upvoteCount = src.readInt();
+	}
+	public static final Parcelable.Creator<Answer> CREATOR = new Parcelable.Creator<Answer>() {
+
+		@Override
+		public Answer createFromParcel(Parcel source) {
+			return new Answer(source);
+		}
+
+		@Override
+		public Answer[] newArray(int size) {
+			return new Answer[size];
+		}
+	}; 
 }

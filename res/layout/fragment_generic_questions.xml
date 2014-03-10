@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+	android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvFragGenQF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/fragAllQuestionsTitle"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+	<include layout="@layout/fragment_inc_progress" />
+
+	<FrameLayout android:id="@+id/flGeneric_Content"
+		android:layout_width="match_parent" android:layout_height="match_parent"
+		android:visibility="invisible">
+		<TextView android:id="@+id/tvFragGenTypeOfQ"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal|center_vertical"
+			android:text="@string/fragGenQuestionTypeTitle"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		<ListView android:id="@+id/lvFragGenQuestions"
+			android:layout_width="match_parent" android:layout_height="wrap_content"
+			android:cacheColorHint="#00000000" android:visibility="invisible"
+			android:clipToPadding="false" android:scrollbarStyle="outsideOverlay" />
+
+		<TextView android:id="@+id/tvListViewEmpty"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal|center_vertical"
+			android:text="@string/fragGenQuestionsNoData" android:textAppearance="?android:attr/textAppearanceLarge"
+			android:visibility="invisible" />
+
+	</FrameLayout>
+
+
+
 
 </RelativeLayout>
