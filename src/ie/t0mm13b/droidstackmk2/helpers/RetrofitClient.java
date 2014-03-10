@@ -1,8 +1,14 @@
 package ie.t0mm13b.droidstackmk2.helpers;
 
 
+import ie.t0mm13b.droidstackmk2.DroidStackMk2App;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 
+
+import android.os.Environment;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,11 +19,14 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.squareup.okhttp.HttpResponseCache;
+import com.squareup.okhttp.OkHttpClient;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.Client;
+import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
 /***
@@ -33,7 +42,9 @@ public class RetrofitClient {
 	private static final String SEKEYP_NAME = "key";
 	private static final String SEKEYP_VALUE = "eTSVGWl)FNM7y9hfqnyC6A((";
 	//
-	
+	private static OkHttpClient mOkHttpClient;
+	private static HttpResponseCache mHttpRespCache;
+
 	private static RestAdapter mRestAdapterClient;
 	private static boolean isRestClientReady;
 	//
@@ -57,8 +68,19 @@ public class RetrofitClient {
 	public RestAdapter getRESTfulClient(){
 		return mRestAdapterClient;
 	}
-	public void Initialize(Client clientReplacement){
+	public void Initialize(Client clientReplacement) throws IOException{
 		if (!isRestClientReady){
+			mOkHttpClient = new OkHttpClient();
+			File fCache = DroidStackMk2App.getAppContext().getCacheDir();
+//			if (Utils.isExternalStorageWritable()){
+//				fCache = Environment.getDownloadCacheDirectory();
+//				Utils.LogIt(TAG, "Initialize(...) - using External Storage Cache Directory");
+//			}else{
+//				fCache = DroidStackMk2App.getAppContext().getCacheDir();
+//				Utils.LogIt(TAG, "Initialize(...) - using Internal Storage Cache Directory");
+//			}
+			mHttpRespCache = new HttpResponseCache(fCache, 1024);
+			mOkHttpClient.setOkResponseCache(mHttpRespCache);
 			GsonBuilder gb = new GsonBuilder(); 
 			gb.registerTypeAdapter(String.class, new StringConverter()); 
 			Gson gson = gb.create();
@@ -67,12 +89,13 @@ public class RetrofitClient {
 				.setRequestInterceptor(new RetrofitRequestInterceptor())
 				.setClient(clientReplacement)
 				.setConverter(new GsonConverter(gson))
-				.setServer(SEURL)
+				.setEndpoint(SEURL)
 				.build();
 			}else{
 				mRestAdapterClient = new RestAdapter.Builder()
 				.setRequestInterceptor(new RetrofitRequestInterceptor())
-				.setServer(SEURL)
+				.setEndpoint(SEURL)
+				.setClient(new OkClient(mOkHttpClient))
 				.setConverter(new GsonConverter(gson))
 				.build();
 			}
@@ -100,6 +123,7 @@ public class RetrofitClient {
 		@Override
 		public void intercept(RequestFacade argReqFacade) {
 			argReqFacade.addQueryParam(SEKEYP_NAME, SEKEYP_VALUE); // Add in the API key to get around quota limitations
+			argReqFacade.addHeader("Cache-Control", "max-age=300");
 		}
 		
 	}
