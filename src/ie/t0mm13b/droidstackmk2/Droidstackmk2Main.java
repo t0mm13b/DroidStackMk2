@@ -80,9 +80,6 @@ public class Droidstackmk2Main extends ActionBarActivity /*implements  OnQueryTe
 	private static final String SECLIENTIDP_KEY = "client_id";
 	private static final String SECLIENTIDP_VALUE = "2563";
 	//
-	private static final String SESECRETP_KEY = "client_secret";
-	private static final String SESECRETP_VALUE = "jtLcZ6ruFMN2Woif6PKwUw((";
-	//
 	private static final String MDSKEY_EVTBUS_REG = "MDS_EVTBUS_REGD";
 	private static final String MDSKEY_FRAGLISTNR_REG = "MDS_FRAGLSTNR_REGD";
 	private static final String MDSKEY_USERINFO_OBSERVD = "MDS_USERINFO_OBSERVD";
